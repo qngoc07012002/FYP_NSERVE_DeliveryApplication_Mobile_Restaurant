@@ -1,22 +1,17 @@
-import 'package:deliveryapplication_mobile_customer/screens/profile_screen.dart';
-import 'package:deliveryapplication_mobile_customer/screens/restaurant_filter_screen.dart';
-import 'package:deliveryapplication_mobile_customer/screens/restaurantdetail_screen.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:deliveryapplication_mobile_driver/screens/message_screen.dart';
+import 'package:deliveryapplication_mobile_driver/screens/order_screen.dart';
+import 'package:deliveryapplication_mobile_driver/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
-import 'bookbike_screen.dart';
-import 'message_screen.dart';
-import 'order_screen.dart';
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class DriverHomePage extends StatefulWidget {
+  const DriverHomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<DriverHomePage> createState() => _DriverHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  String selectedLocation = "Your Location";
+class _DriverHomePageState extends State<DriverHomePage> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -27,27 +22,54 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  bool isOnline = false;
+
+  // Sample data
+  final List<ChartData> dailyData = [
+    ChartData('Mon', 30),
+    ChartData('Tue', 40),
+    ChartData('Wed', 25),
+    ChartData('Thu', 45),
+    ChartData('Fri', 50),
+    ChartData('Sat', 35),
+    ChartData('Sun', 60),
+  ];
+
+  final List<ChartData> monthlyData = [
+    ChartData('Jan', 200),
+    ChartData('Feb', 220),
+    ChartData('Mar', 250),
+    ChartData('Apr', 300),
+    ChartData('May', 280),
+    ChartData('Jun', 350),
+    ChartData('Jul', 400),
+    ChartData('Aug', 370),
+    ChartData('Sep', 420),
+    ChartData('Oct', 450),
+    ChartData('Nov', 460),
+    ChartData('Dec', 490),
+  ];
+
+  final List<ChartData> yearlyData = [
+    ChartData('2022', 5000),
+    ChartData('2023', 6000),
+    ChartData('2024', 7000),
+  ];
+
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          _buildHomePage(), // The home page content
-          RideBookingPage(),
-          MessagePage(),
-          ProfilePage(),
-        ],
-      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.fastfood),
-            label: 'Food',
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.directions_car),
-            label: 'Bike',
+            icon: Icon(Icons.reorder),
+            label: 'Order',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.message),
@@ -63,6 +85,15 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildHomePage(), // The home page content
+          OrderPage(),
+          MessagePage(),
+          ProfilePage(),
+        ],
+      ),
     );
   }
 
@@ -71,245 +102,284 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Pick Location & Search Bar
+          // Header with avatar, name, and status toggle button
           Container(
+            padding: const EdgeInsets.fromLTRB(16, 60, 16, 30),
             decoration: BoxDecoration(
               color: const Color(0xFF39c5c8), // Màu xanh chủ đạo
               borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(20.0), // Bo tròn góc dưới
               ),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                SizedBox(
-                  height: 40,
+                CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFQv4gzmNtZTnbl7lQMMmV5JWDO2_fIO2luA&s',
+                  ),
+                  radius: 30,
                 ),
-                GestureDetector(
-                  onTap: _pickLocation,
-                  child: Row(
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.location_on, color: Colors.white),
-                      const SizedBox(width: 4.0),
                       Text(
-                        selectedLocation,
+                        'John Doe',
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                      const SizedBox(height: 4.0),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                              color: isOnline ? Colors.green : Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          Text(
+                            isOnline ? 'Online' : 'Offline',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isOnline ? Colors.green : Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16.0),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search for food or restaurants',
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF39c5c8)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide.none,
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      isOnline = !isOnline;
+                    });
+                  },
+                  child: Text(isOnline ? 'Go Offline' : 'Go Online'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: const Color(0xFF39c5c8),
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Revenue and Orders section
+          Padding(
+            padding: const EdgeInsets.all(5),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Today\'s Revenue',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black.withOpacity(0.8),
+                            ),
+                          ),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            '\$150',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    filled: true,
-                    fillColor: Colors.white,
                   ),
-                  onSubmitted: _search,
+                ),
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Today\'s Orders',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black.withOpacity(0.8),
+                            ),
+                          ),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            '20 Orders',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24.0),
 
-          // Food Categories
+
+          // Revenue section with charts
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Categories',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                // Daily Revenue Chart
+                Card(
+                  elevation: 4,
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 200,
+                          child: SfCartesianChart(
+                            primaryXAxis: CategoryAxis(),
+                            primaryYAxis: NumericAxis(),
+                            series: <CartesianSeries>[
+                              ColumnSeries<ChartData, String>(
+                                dataSource: dailyData,
+                                xValueMapper: (ChartData data, _) => data.x,
+                                yValueMapper: (ChartData data, _) => data.y,
+                                color: Colors.blue,
+                                dataLabelSettings: DataLabelSettings(isVisible: true),
+                              ),
+                            ],
+                            title: ChartTitle(
+                              text: 'Daily Revenue: \$400',
+                              alignment: ChartAlignment.center,
+                              textStyle: TextStyle(color: Colors.black.withOpacity(0.8)),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildCategoryItem('Pizza', Icons.local_pizza),
-                    _buildCategoryItem('Sushi', Icons.ramen_dining),
-                    _buildCategoryItem('Burgers', Icons.fastfood),
-                    _buildCategoryItem('Salads', Icons.local_dining),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24.0),
+                const SizedBox(height: 5),
 
-          // Stores List
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Restaurants',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                // Monthly Revenue Chart
+                Card(
+                  elevation: 4,
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 300,
+                          child: SfCartesianChart(
+                            primaryXAxis: CategoryAxis(),
+                            primaryYAxis: NumericAxis(),
+                            series: <CartesianSeries>[
+                              LineSeries<ChartData, String>(
+                                dataSource: monthlyData,
+                                xValueMapper: (ChartData data, _) => data.x,
+                                yValueMapper: (ChartData data, _) => data.y,
+                                color: Colors.green,
+                                dataLabelSettings: DataLabelSettings(isVisible: true),
+                              ),
+                            ],
+                            title: ChartTitle(
+                              text: 'Monthly Revenue: \$2500',
+                              alignment: ChartAlignment.center,
+                              textStyle: TextStyle(color: Colors.black.withOpacity(0.8)),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8.0),
-                _buildStoreItem(
-                  name: 'Pizza Hut',
-                  imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s',
-                  description: 'Best pizza in town',
-                  rating: 4.5,
-                ),
-                _buildStoreItem(
-                  name: 'Sushi Bar',
-                  imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s',
-                  description: 'Fresh sushi and more',
-                  rating: 4.8,
-                ),
-                _buildStoreItem(
-                  name: 'Burger King',
-                  imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s',
-                  description: 'Delicious burgers and fries',
-                  rating: 4.3,
+                const SizedBox(height: 5),
+
+                // Yearly Revenue Chart
+                Card(
+                  elevation: 4,
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 300,
+                          child: SfCartesianChart(
+                            primaryXAxis: CategoryAxis(),
+                            primaryYAxis: NumericAxis(),
+                            series: <CartesianSeries>[
+                              ColumnSeries<ChartData, String>(
+                                dataSource: yearlyData,
+                                xValueMapper: (ChartData data, _) => data.x,
+                                yValueMapper: (ChartData data, _) => data.y,
+                                color: Colors.red,
+                                dataLabelSettings: DataLabelSettings(isVisible: true),
+                              ),
+                            ],
+                            title: ChartTitle(
+                              text: 'Yearly Revenue: \$18000',
+                              alignment: ChartAlignment.center,
+                              textStyle: TextStyle(color: Colors.black.withOpacity(0.8)),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _pickLocation() async {
-    List<String> locations = ['Hanoi', 'Ho Chi Minh City', 'Da Nang', 'Hai Phong'];
-    String? picked = await showModalBottomSheet<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return ListView.builder(
-          itemCount: locations.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(locations[index]),
-              onTap: () {
-                Navigator.pop(context, locations[index]);
-              },
-            );
-          },
-        );
-      },
-    );
-
-    if (picked != null && picked.isNotEmpty) {
-      setState(() {
-        selectedLocation = picked;
-      });
-    }
-  }
-
-  void _search(String query) {
-    print('Searching for $query');
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => FilterPage(),
-      ),
-    );
-  }
-
-  Widget _buildCategoryItem(String title, IconData icon) {
-    return GestureDetector(
-      onTap: () {
-        print('Category $title clicked');
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FilterPage(),
-            ),
-          );
-
-      },
-      child: Column(
-        children: [
-          CircleAvatar(
-            backgroundColor: const Color(0xFF39c5c8).withOpacity(0.8),
-            radius: 32,
-            child: Icon(icon, size: 32, color: Colors.white),
-          ),
-          const SizedBox(height: 8.0),
-          Text(title),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStoreItem({
-    required String name,
-    required String imageUrl,
-    required String description,
-    required double rating,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        print('Store $name clicked');
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RestaurantDetailPage(),
-          ),
-        );
-      },
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0), // Bo góc cho Card
-        ),
-        elevation: 5,
-        margin: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(12.0)), // Bo góc trái cho hình ảnh
-              child: Image.network(
-                imageUrl,
-                width: 120, // Kích thước hình ảnh
-                height: 120,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            Expanded(
-              child: ListTile(
-                title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(description),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.star, color: Colors.amber),
-                    Text(rating.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 }
 
+class ChartData {
+  ChartData(this.x, this.y);
+  final String x;
+  final double y;
+}
+
+
+
 void main() {
   runApp(const MaterialApp(
-    home: HomePage(),
+    home: DriverHomePage(),
   ));
 }

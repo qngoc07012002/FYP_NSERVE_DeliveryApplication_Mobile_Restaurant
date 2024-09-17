@@ -1,28 +1,18 @@
-import 'package:deliveryapplication_mobile_driver/screens/message_screen.dart';
-import 'package:deliveryapplication_mobile_driver/screens/order_screen.dart';
-import 'package:deliveryapplication_mobile_driver/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-class DriverHomePage extends StatefulWidget {
-  const DriverHomePage({super.key});
+import 'foodmanagement_screen.dart';
+
+class RestaurantDashboardPage extends StatefulWidget {
+  const RestaurantDashboardPage({super.key});
 
   @override
-  State<DriverHomePage> createState() => _DriverHomePageState();
+  State<RestaurantDashboardPage> createState() => _RestaurantDashboardPageState();
 }
 
-class _DriverHomePageState extends State<DriverHomePage> {
+class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
   int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      // Here you can handle navigation logic based on the selected index
-      print('Selected index: $_selectedIndex');
-    });
-  }
-
-  bool isOnline = false;
+  bool isOpen = false;
 
   // Sample data
   final List<ChartData> dailyData = [
@@ -58,14 +48,16 @@ class _DriverHomePageState extends State<DriverHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.fastfood),
+            label: 'Food',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.reorder),
@@ -83,15 +75,19 @@ class _DriverHomePageState extends State<DriverHomePage> {
         currentIndex: _selectedIndex,
         selectedItemColor: const Color(0xFF39c5c8),
         unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
       ),
       body: IndexedStack(
         index: _selectedIndex,
         children: [
           _buildHomePage(), // The home page content
-          OrderPage(),
-          MessagePage(),
-          ProfilePage(),
+          FoodManagementPage(),
+          // MessagePage(),
+          // ProfilePage(),
         ],
       ),
     );
@@ -102,7 +98,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with avatar, name, and status toggle button
+          // Header with restaurant's image, name, and status toggle button
           Container(
             padding: const EdgeInsets.fromLTRB(16, 60, 16, 30),
             decoration: BoxDecoration(
@@ -113,11 +109,19 @@ class _DriverHomePageState extends State<DriverHomePage> {
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFQv4gzmNtZTnbl7lQMMmV5JWDO2_fIO2luA&s',
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        'https://example.com/restaurant-image.jpg', // Thay đổi thành URL của ảnh nhà hàng
+                      ),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  radius: 30,
                 ),
                 const SizedBox(width: 16.0),
                 Expanded(
@@ -125,7 +129,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'John Doe',
+                        'Restaurant Name', // Thay đổi tên nhà hàng
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -140,16 +144,16 @@ class _DriverHomePageState extends State<DriverHomePage> {
                             height: 8,
                             margin: const EdgeInsets.only(right: 8),
                             decoration: BoxDecoration(
-                              color: isOnline ? Colors.green : Colors.red,
+                              color: isOpen ? Colors.green : Colors.red,
                               shape: BoxShape.circle,
                             ),
                           ),
                           Text(
-                            isOnline ? 'Online' : 'Offline',
+                            isOpen ? 'Open' : 'Closed',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: isOnline ? Colors.green : Colors.red,
+                              color: isOpen ? Colors.green : Colors.red,
                             ),
                           ),
                         ],
@@ -157,17 +161,13 @@ class _DriverHomePageState extends State<DriverHomePage> {
                     ],
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () {
+                Switch(
+                  value: isOpen,
+                  onChanged: (value) {
                     setState(() {
-                      isOnline = !isOnline;
+                      isOpen = value;
                     });
                   },
-                  child: Text(isOnline ? 'Go Offline' : 'Go Online'),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: const Color(0xFF39c5c8),
-                    backgroundColor: Colors.white,
-                  ),
                 ),
               ],
             ),
@@ -244,7 +244,6 @@ class _DriverHomePageState extends State<DriverHomePage> {
               ],
             ),
           ),
-
 
           // Revenue section with charts
           Padding(
@@ -350,7 +349,7 @@ class _DriverHomePageState extends State<DriverHomePage> {
                               ),
                             ],
                             title: ChartTitle(
-                              text: 'Yearly Revenue: \$18000',
+                              text: 'Yearly Revenue: \$12000',
                               alignment: ChartAlignment.center,
                               textStyle: TextStyle(color: Colors.black.withOpacity(0.8)),
                             ),
@@ -372,14 +371,16 @@ class _DriverHomePageState extends State<DriverHomePage> {
 
 class ChartData {
   ChartData(this.x, this.y);
+
   final String x;
   final double y;
 }
 
 
 
+
 void main() {
   runApp(const MaterialApp(
-    home: DriverHomePage(),
+    home: RestaurantDashboardPage(),
   ));
 }

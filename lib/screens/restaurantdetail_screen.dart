@@ -1,4 +1,5 @@
-import 'package:deliveryapplication_mobile_customer/screens/placeorder_screen.dart';
+
+import 'package:deliveryapplication_mobile_restaurant/screens/placeorder_screen.dart';
 import 'package:flutter/material.dart';
 
 class RestaurantDetailPage extends StatefulWidget {

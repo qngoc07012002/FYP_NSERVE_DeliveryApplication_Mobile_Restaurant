@@ -1,3 +1,5 @@
+import 'package:deliveryapplication_mobile_restaurant/screens/createfood_screen.dart';
+import 'package:deliveryapplication_mobile_restaurant/screens/editfood_screen.dart';
 import 'package:flutter/material.dart';
 
 class FoodManagementPage extends StatefulWidget {
@@ -116,6 +118,12 @@ class _FoodManagementPageState extends State<FoodManagementPage> {
                         icon: const Icon(Icons.edit, color: Colors.blue),
                         onPressed: () {
                           print('Edit ${foodItem.name}');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditFoodPage(),
+                            ),
+                          );
                         },
                       ),
                     ],
@@ -130,6 +138,12 @@ class _FoodManagementPageState extends State<FoodManagementPage> {
         backgroundColor: const Color(0xFF39c5c8),
         onPressed: () {
           print('Add new food item');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateFoodPage(),
+            ),
+          );
         },
         child: const Icon(Icons.add),
       ),

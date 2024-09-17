@@ -1,3 +1,6 @@
+import 'package:deliveryapplication_mobile_restaurant/screens/message_screen.dart';
+import 'package:deliveryapplication_mobile_restaurant/screens/order_screen.dart';
+import 'package:deliveryapplication_mobile_restaurant/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -86,8 +89,9 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
         children: [
           _buildHomePage(), // The home page content
           FoodManagementPage(),
-          // MessagePage(),
-          // ProfilePage(),
+          OrderPage(),
+          MessagePage(),
+          ProfilePage(),
         ],
       ),
     );
@@ -117,7 +121,7 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
                     borderRadius: BorderRadius.circular(8),
                     image: DecorationImage(
                       image: NetworkImage(
-                        'https://example.com/restaurant-image.jpg', // Thay đổi thành URL của ảnh nhà hàng
+                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpvDaC9m6pShLatEN-C5WqbRTYiv-qGU3TOw&s',
                       ),
                       fit: BoxFit.cover,
                     ),
@@ -129,7 +133,7 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Restaurant Name', // Thay đổi tên nhà hàng
+                        'Béo Restaurant',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -168,6 +172,9 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
                       isOpen = value;
                     });
                   },
+
+                  inactiveThumbColor: Colors.red, // Red when inactive
+                  inactiveTrackColor: Colors.red[200],
                 ),
               ],
             ),

@@ -7,25 +7,25 @@ class MessagePage extends StatelessWidget {
     {
       'name': 'Béo Pizza Restaurant',
       'avatarUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFQv4gzmNtZTnbl7lQMMmV5JWDO2_fIO2luA&s',
-      'lastMessage': 'Cảm ơn bạn đã đặt hàng!',
+      'lastMessage': 'Thanks for your order!',
       'timestamp': DateTime.now().subtract(Duration(minutes: 5)),
     },
     {
       'name': 'Béo Shipper',
       'avatarUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnihI8ux-tT_Z1JF8toQIn05jA8PO--cdCJELNtoYDXoA2C1FbkjQLE34NTjbsvyo0nXU&usqp=CAU',
-      'lastMessage': 'Tôi đang trên đường đến nơi!',
+      'lastMessage': 'Im on the way!',
       'timestamp': DateTime.now().subtract(Duration(days: 1)),
     },
     {
       'name': 'Béo Shipper',
       'avatarUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnihI8ux-tT_Z1JF8toQIn05jA8PO--cdCJELNtoYDXoA2C1FbkjQLE34NTjbsvyo0nXU&usqp=CAU',
-      'lastMessage': 'Tôi đang trên đường đến nơi!',
+      'lastMessage': 'Im on the way!',
       'timestamp': DateTime.now().subtract(Duration(hours: 1)),
     },
     {
       'name': 'Béo Shipper',
       'avatarUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnihI8ux-tT_Z1JF8toQIn05jA8PO--cdCJELNtoYDXoA2C1FbkjQLE34NTjbsvyo0nXU&usqp=CAU',
-      'lastMessage': 'Tôi đang trên đường đến nơi!',
+      'lastMessage': 'Im on the way!',
       'timestamp': DateTime.now().subtract(Duration(days: 1)),
     },
   ];
@@ -93,13 +93,13 @@ class MessagePage extends StatelessWidget {
     final difference = now.difference(timestamp);
 
     if (difference.inDays > 0) {
-      return '${difference.inDays} ngày trước';
+      return '${difference.inDays} day ago';
     } else if (difference.inHours > 0) {
-      return '${difference.inHours} giờ trước';
+      return '${difference.inHours} hour ago';
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} phút trước';
+      return '${difference.inMinutes} minute ago';
     } else {
-      return 'Vừa xong';
+      return 'recently';
     }
   }
 }

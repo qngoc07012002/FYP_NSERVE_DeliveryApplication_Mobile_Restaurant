@@ -1,132 +1,153 @@
 import 'package:flutter/material.dart';
 
 class FoodManagementPage extends StatefulWidget {
-  const FoodManagementPage({super.key});
+  const FoodManagementPage({Key? key}) : super(key: key);
 
   @override
   State<FoodManagementPage> createState() => _FoodManagementPageState();
 }
 
 class _FoodManagementPageState extends State<FoodManagementPage> {
-  final List<Food> _foods = [
-    Food(
-      name: 'Pizza Margherita',
-      imageUrl: 'https://example.com/images/pizza_margherita.jpg',
-      description: 'Classic pizza with tomatoes, mozzarella, and basil.',
-      isAvailable: true,
-    ),
-    Food(
-      name: 'Sushi Roll',
-      imageUrl: 'https://example.com/images/sushi_roll.jpg',
-      description: 'Fresh sushi rolls with various fillings.',
-      isAvailable: true,
-    ),
-    Food(
-      name: 'Cheeseburger',
-      imageUrl: 'https://example.com/images/cheeseburger.jpg',
-      description: 'Juicy cheeseburger with all the toppings.',
-      isAvailable: false,
-    ),
+  // Sample data for food items
+  final List<FoodItem> _foodItems = [
+    FoodItem('Burger', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s', 'abmcm', true),
+    FoodItem('Pizza', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s', 'abcx', false),
+    FoodItem('Salad', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s', '123', true),
+    FoodItem('Sushi', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s', '123', false),
   ];
-
-  void _toggleAvailability(int index) {
-    setState(() {
-      _foods[index].isAvailable = !_foods[index].isAvailable;
-    });
-  }
-
-  void _editFood(int index) {
-    // Implement edit functionality here
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Food Management'),
-        backgroundColor: const Color(0xFF39c5c8),
-        elevation: 0,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: AppBar(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+          backgroundColor: const Color(0xFF39c5c8),
+          centerTitle: true,
+          title: const Text(
+            'Food Management',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 22,
+            ),
+          ),
+        ),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16.0),
-        itemCount: _foods.length,
+        itemCount: _foodItems.length,
         itemBuilder: (context, index) {
-          final food = _foods[index];
-          return _buildFoodItem(food, index);
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Implement add new food functionality
-        },
-        child: const Icon(Icons.add),
-        backgroundColor: const Color(0xFF39c5c8),
-      ),
-    );
-  }
-
-  Widget _buildFoodItem(Food food, int index) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      elevation: 5,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.horizontal(left: Radius.circular(12.0)),
-            child: Image.network(
-              food.imageUrl.isNotEmpty ? food.imageUrl : 'https://via.placeholder.com/120',
-              width: 120,
-              height: 120,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.image, size: 120);
-              },
+          final foodItem = _foodItems[index];
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
             ),
-          ),
-          const SizedBox(width: 8.0),
-          Expanded(
-            child: ListTile(
-              title: Text(food.name.isNotEmpty ? food.name : 'No Name', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)),
-              subtitle: Text(food.description.isNotEmpty ? food.description : 'No Description', style: const TextStyle(color: Colors.grey)),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            // Card color changes based on availability
+            color: foodItem.isAvailable ? Colors.white : Colors.grey[300],
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    food.isAvailable ? Icons.check_circle : Icons.cancel,
-                    color: food.isAvailable ? Colors.green : Colors.red,
+                  // Food image (square)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      foodItem.imageUrl,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  const SizedBox(height: 4.0),
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () => _editFood(index),
+                  const SizedBox(width: 12),
+                  // Food information (name)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          foodItem.name,
+                          style: TextStyle(
+                            fontSize: 20, // Larger font size for name
+                            fontWeight: FontWeight.w600, // Slightly lighter font weight
+                            color: foodItem.isAvailable
+                                ? Colors.black
+                                : Colors.grey[600], // Greyed out text if unavailable
+                          ),
+                        ),
+                        const SizedBox(height: 8), // Space between name and description
+                        Text(
+                          foodItem.description ?? 'No description available', // Handle null
+                          style: TextStyle(
+                            fontSize: 16, // Smaller font size for description
+                            fontWeight: FontWeight.w400, // Lighter font weight for description
+                            color: foodItem.isAvailable
+                                ? Colors.black87 // Slightly lighter black if available
+                                : Colors.grey[600], // Greyed out text if unavailable
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.toggle_on),
-                    onPressed: () => _toggleAvailability(index),
+                  // Switch and Edit button
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Switch(
+                        value: foodItem.isAvailable,
+                        onChanged: (bool value) {
+                          setState(() {
+                            foodItem.isAvailable = value;
+                          });
+                          print(
+                              '${foodItem.name} status changed to ${value ? 'Available' : 'Unavailable'}');
+                        },
+                        activeColor: const Color(0xFF39c5c8), // Green when active
+                        inactiveThumbColor: Colors.red, // Red when inactive
+                        inactiveTrackColor: Colors.red[200],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () {
+                          print('Edit ${foodItem.name}');
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF39c5c8),
+        onPressed: () {
+          print('Add new food item');
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
 }
 
-class Food {
-  final String name;
-  final String imageUrl;
-  final String description;
+class FoodItem {
+  String name;
+  String imageUrl;
+  String? description; // Nullable
   bool isAvailable;
 
-  Food({
-    required this.name,
-    required this.imageUrl,
-    required this.description,
-    this.isAvailable = true,
-  });
+  FoodItem(this.name, this.imageUrl, this.description, this.isAvailable);
+}
+
+void main() {
+  runApp(const MaterialApp(
+    home: FoodManagementPage(),
+  ));
 }

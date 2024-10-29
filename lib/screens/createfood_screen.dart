@@ -76,29 +76,33 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
             children: [
               GestureDetector(
                 onTap: _pickImage,
-                child: Container(
-                  width: double.infinity,
-                  height: 150, // Set fixed height for image
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                    image: _imageFile != null
-                        ? DecorationImage(
-                      image: FileImage(_imageFile!),
-                      fit: BoxFit.cover,
+                child: Center( // Center the image picker in the form
+                  child: Container(
+                    width: 150,  // Fixed width
+                    height: 150, // Fixed height
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8),
+                      image: _imageFile != null
+                          ? DecorationImage(
+                        image: FileImage(_imageFile!),
+                        fit: BoxFit.cover,
+                      )
+                          : null,
+                    ),
+                    child: _imageFile == null
+                        ? const Icon(
+                      Icons.add_a_photo,
+                      size: 50,
+                      color: Colors.grey,
                     )
                         : null,
+                    alignment: Alignment.center,
                   ),
-                  child: _imageFile == null
-                      ? const Icon(
-                    Icons.add_a_photo,
-                    size: 50,
-                    color: Colors.grey,
-                  )
-                      : null,
-                  alignment: Alignment.center,
                 ),
               ),
+
+
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,

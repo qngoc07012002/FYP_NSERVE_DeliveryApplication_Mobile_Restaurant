@@ -1,22 +1,17 @@
+import 'package:deliveryapplication_mobile_restaurant/controllers/food_controller.dart';
+import 'package:deliveryapplication_mobile_restaurant/models/food_model.dart';
 import 'package:deliveryapplication_mobile_restaurant/screens/createfood_screen.dart';
 import 'package:deliveryapplication_mobile_restaurant/screens/editfood_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class FoodManagementPage extends StatefulWidget {
-  const FoodManagementPage({Key? key}) : super(key: key);
-
   @override
-  State<FoodManagementPage> createState() => _FoodManagementPageState();
+  _FoodManagementPageState createState() => _FoodManagementPageState();
 }
 
 class _FoodManagementPageState extends State<FoodManagementPage> {
-  // Sample data for food items
-  final List<FoodItem> _foodItems = [
-    FoodItem('Burger', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s', 'abmcm', true),
-    FoodItem('Pizza', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s', 'abcx', false),
-    FoodItem('Salad', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s', '123', true),
-    FoodItem('Sushi', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s', '123', false),
-  ];
+  final FoodController controller = Get.put(FoodController());
 
   @override
   Widget build(BuildContext context) {
@@ -39,111 +34,33 @@ class _FoodManagementPageState extends State<FoodManagementPage> {
           ),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: _foodItems.length,
-        itemBuilder: (context, index) {
-          final foodItem = _foodItems[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            // Card color changes based on availability
-            color: foodItem.isAvailable ? Colors.white : Colors.grey[300],
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Food image (square)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      foodItem.imageUrl,
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Food information (name)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          foodItem.name,
-                          style: TextStyle(
-                            fontSize: 20, // Larger font size for name
-                            fontWeight: FontWeight.w600, // Slightly lighter font weight
-                            color: foodItem.isAvailable
-                                ? Colors.black
-                                : Colors.grey[600], // Greyed out text if unavailable
-                          ),
-                        ),
-                        const SizedBox(height: 8), // Space between name and description
-                        Text(
-                          foodItem.description ?? 'No description available', // Handle null
-                          style: TextStyle(
-                            fontSize: 16, // Smaller font size for description
-                            fontWeight: FontWeight.w400, // Lighter font weight for description
-                            color: foodItem.isAvailable
-                                ? Colors.black87 // Slightly lighter black if available
-                                : Colors.grey[600], // Greyed out text if unavailable
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Switch and Edit button
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Switch(
-                        value: foodItem.isAvailable,
-                        onChanged: (bool value) {
-                          setState(() {
-                            foodItem.isAvailable = value;
-                          });
-                          print(
-                              '${foodItem.name} status changed to ${value ? 'Available' : 'Unavailable'}');
-                        },
-                        activeColor: const Color(0xFF39c5c8), // Green when active
-                        inactiveThumbColor: Colors.red, // Red when inactive
-                        inactiveTrackColor: Colors.red[200],
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          print('Edit ${foodItem.name}');
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditFoodPage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: controller.foodItems.length,
+          itemBuilder: (context, index) {
+            final foodItem = controller.foodItems[index];
+            return FoodCard(
+              foodItem: foodItem,
+              index: index,
+              controller: controller,
+              onSwitchChanged: (bool value) {
+                setState(() {
+                  controller.foodItems[index].isAvailable = value;
+                });
+              },
+            );
+          },
+        );
+      }),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF39c5c8),
         onPressed: () {
-          print('Add new food item');
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CreateFoodPage(),
-            ),
-          );
+          Get.to(() => CreateFoodPage());
         },
         child: const Icon(Icons.add),
       ),
@@ -151,17 +68,102 @@ class _FoodManagementPageState extends State<FoodManagementPage> {
   }
 }
 
-class FoodItem {
-  String name;
-  String imageUrl;
-  String? description; // Nullable
-  bool isAvailable;
 
-  FoodItem(this.name, this.imageUrl, this.description, this.isAvailable);
+
+class FoodCard extends StatelessWidget {
+  final Food foodItem;
+  final int index;
+  final FoodController controller;
+  final ValueChanged<bool> onSwitchChanged;
+
+  FoodCard({required this.foodItem, required this.index, required this.controller, required this.onSwitchChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      color: foodItem.isAvailable ? Colors.white : Colors.grey[300],
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                foodItem.imageUrl,
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    foodItem.name,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: foodItem.isAvailable
+                          ? Colors.black
+                          : Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '\$${foodItem.price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF39c5c8),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    foodItem.description ?? 'No description available',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: foodItem.isAvailable
+                          ? Colors.black87
+                          : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Switch(
+                  value: foodItem.isAvailable,
+                  onChanged: (bool value) async {
+                    await controller.updateFoodStatus(foodItem.id, value);
+                    onSwitchChanged(value); // gọi onSwitchChanged để cập nhật trạng thái
+                  },
+                  activeColor: const Color(0xFF39c5c8),
+                  inactiveThumbColor: Colors.red,
+                  inactiveTrackColor: Colors.red[200],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () {
+                    Get.to(() => EditFoodPage());
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-void main() {
-  runApp(const MaterialApp(
-    home: FoodManagementPage(),
-  ));
-}

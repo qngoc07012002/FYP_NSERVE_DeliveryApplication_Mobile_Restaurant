@@ -1,21 +1,27 @@
-import 'package:deliveryapplication_mobile_restaurant/screens/message_screen.dart';
-import 'package:deliveryapplication_mobile_restaurant/screens/order_screen.dart';
-import 'package:deliveryapplication_mobile_restaurant/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-
+import '../controllers/restaurant_controller.dart';
+import '../models/chart_model.dart';
+import '../ultilities/Constant.dart';
+// Import controller
 import 'foodmanagement_screen.dart';
+import 'message_screen.dart';
+import 'order_screen.dart';
+import 'profile_screen.dart';
 
 class RestaurantDashboardPage extends StatefulWidget {
-  const RestaurantDashboardPage({super.key});
+  const RestaurantDashboardPage({Key? key}) : super(key: key);
 
   @override
-  State<RestaurantDashboardPage> createState() => _RestaurantDashboardPageState();
+  _RestaurantDashboardPageState createState() => _RestaurantDashboardPageState();
 }
 
 class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
   int _selectedIndex = 0;
-  bool isOpen = false;
+
+  final RestaurantController controller = Get.put(RestaurantController());
+
 
   // Sample data
   final List<ChartData> dailyData = [
@@ -48,6 +54,293 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
     ChartData('2023', 6000),
     ChartData('2024', 7000),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    controller.fetchRestaurantInfo();
+  }
+
+  // Phương thức xây dựng trang chính
+  Widget _buildHomePage() {
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return Center(child: CircularProgressIndicator());
+      }
+
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 60, 16, 30),
+              decoration: BoxDecoration(
+                color: const Color(0xFF39c5c8),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(20.0),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          Constant.BACKEND_URL + controller.restaurantImage.value,
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          controller.restaurantName.value,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 4.0),
+                        Row(
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: controller.isOpen.value ? Colors.green : Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            Text(
+                              controller.isOpen.value ? 'Open' : 'Closed',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: controller.isOpen.value ? Colors.green : Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Switch(
+                    value: controller.isOpen.value,
+                    onChanged: (value) async {
+                      controller.isOpen.value = value;
+                      await controller.updateRestaurantStatus(value);
+                    },
+                    inactiveThumbColor: Colors.red,
+                    inactiveTrackColor: Colors.red[200],
+                  ),
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(5),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      color: Colors.white,
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Today\'s Revenue',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black.withOpacity(0.8),
+                              ),
+                            ),
+                            const SizedBox(height: 8.0),
+                            Text(
+                              '\$150', // Thay thế bằng doanh thu thực tế nếu có
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    child: Card(
+                      color: Colors.white,
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Today\'s Orders',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black.withOpacity(0.8),
+                              ),
+                            ),
+                            const SizedBox(height: 8.0),
+                            Text(
+                              '20 Orders', // Thay thế bằng số đơn hàng thực tế nếu có
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Revenue section with charts
+            Padding(
+              padding: const EdgeInsets.all(5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Daily Revenue Chart
+                  Card(
+                    elevation: 4,
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            child: SfCartesianChart(
+                              primaryXAxis: CategoryAxis(),
+                              primaryYAxis: NumericAxis(),
+                              series: <CartesianSeries>[
+                                ColumnSeries<ChartData, String>(
+                                  dataSource: dailyData,
+                                  xValueMapper: (ChartData data, _) => data.x,
+                                  yValueMapper: (ChartData data, _) => data.y,
+                                  color: const Color(0xFF39c5c8),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
+                            child: Text(
+                              'Daily Revenue',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+
+                  // Monthly Revenue Chart
+                  Card(
+                    elevation: 4,
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            child: SfCartesianChart(
+                              primaryXAxis: CategoryAxis(),
+                              primaryYAxis: NumericAxis(),
+                              series: <CartesianSeries>[
+                                LineSeries<ChartData, String>(
+                                  dataSource: monthlyData,
+                                  xValueMapper: (ChartData data, _) => data.x,
+                                  yValueMapper: (ChartData data, _) => data.y,
+                                  color: const Color(0xFF39c5c8),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
+                            child: Text(
+                              'Monthly Revenue',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+
+                  // Yearly Revenue Chart
+                  Card(
+                    elevation: 4,
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            child: SfCartesianChart(
+                              primaryXAxis: CategoryAxis(),
+                              primaryYAxis: NumericAxis(),
+                              series: <CartesianSeries>[
+                                ColumnSeries<ChartData, String>(
+                                  dataSource: yearlyData,
+                                  xValueMapper: (ChartData data, _) => data.x,
+                                  yValueMapper: (ChartData data, _) => data.y,
+                                  color: const Color(0xFF39c5c8),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
+                            child: Text(
+                              'Yearly Revenue',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +380,7 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          _buildHomePage(), // The home page content
+          _buildHomePage(),
           FoodManagementPage(),
           OrderPage(),
           MessagePage(),
@@ -96,298 +389,5 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
       ),
     );
   }
-
-  Widget _buildHomePage() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with restaurant's image, name, and status toggle button
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 60, 16, 30),
-            decoration: BoxDecoration(
-              color: const Color(0xFF39c5c8), // Màu xanh chủ đạo
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(20.0), // Bo tròn góc dưới
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpvDaC9m6pShLatEN-C5WqbRTYiv-qGU3TOw&s',
-                      ),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Béo Restaurant',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 4.0),
-                      Row(
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            margin: const EdgeInsets.only(right: 8),
-                            decoration: BoxDecoration(
-                              color: isOpen ? Colors.green : Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          Text(
-                            isOpen ? 'Open' : 'Closed',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isOpen ? Colors.green : Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Switch(
-                  value: isOpen,
-                  onChanged: (value) {
-                    setState(() {
-                      isOpen = value;
-                    });
-                  },
-
-                  inactiveThumbColor: Colors.red, // Red when inactive
-                  inactiveTrackColor: Colors.red[200],
-                ),
-              ],
-            ),
-          ),
-
-          // Revenue and Orders section
-          Padding(
-            padding: const EdgeInsets.all(5),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Card(
-                    color: Colors.white,
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Today\'s Revenue',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black.withOpacity(0.8),
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          Text(
-                            '\$150',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  child: Card(
-                    color: Colors.white,
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Today\'s Orders',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black.withOpacity(0.8),
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          Text(
-                            '20 Orders',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Revenue section with charts
-          Padding(
-            padding: const EdgeInsets.all(5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Daily Revenue Chart
-                Card(
-                  elevation: 4,
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 200,
-                          child: SfCartesianChart(
-                            primaryXAxis: CategoryAxis(),
-                            primaryYAxis: NumericAxis(),
-                            series: <CartesianSeries>[
-                              ColumnSeries<ChartData, String>(
-                                dataSource: dailyData,
-                                xValueMapper: (ChartData data, _) => data.x,
-                                yValueMapper: (ChartData data, _) => data.y,
-                                color: Colors.blue,
-                                dataLabelSettings: DataLabelSettings(isVisible: true),
-                              ),
-                            ],
-                            title: ChartTitle(
-                              text: 'Daily Revenue: \$400',
-                              alignment: ChartAlignment.center,
-                              textStyle: TextStyle(color: Colors.black.withOpacity(0.8)),
-                            ),
-                            margin: EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 5),
-
-                // Monthly Revenue Chart
-                Card(
-                  elevation: 4,
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 300,
-                          child: SfCartesianChart(
-                            primaryXAxis: CategoryAxis(),
-                            primaryYAxis: NumericAxis(),
-                            series: <CartesianSeries>[
-                              LineSeries<ChartData, String>(
-                                dataSource: monthlyData,
-                                xValueMapper: (ChartData data, _) => data.x,
-                                yValueMapper: (ChartData data, _) => data.y,
-                                color: Colors.green,
-                                dataLabelSettings: DataLabelSettings(isVisible: true),
-                              ),
-                            ],
-                            title: ChartTitle(
-                              text: 'Monthly Revenue: \$2500',
-                              alignment: ChartAlignment.center,
-                              textStyle: TextStyle(color: Colors.black.withOpacity(0.8)),
-                            ),
-                            margin: EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 5),
-
-                // Yearly Revenue Chart
-                Card(
-                  elevation: 4,
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 300,
-                          child: SfCartesianChart(
-                            primaryXAxis: CategoryAxis(),
-                            primaryYAxis: NumericAxis(),
-                            series: <CartesianSeries>[
-                              ColumnSeries<ChartData, String>(
-                                dataSource: yearlyData,
-                                xValueMapper: (ChartData data, _) => data.x,
-                                yValueMapper: (ChartData data, _) => data.y,
-                                color: Colors.red,
-                                dataLabelSettings: DataLabelSettings(isVisible: true),
-                              ),
-                            ],
-                            title: ChartTitle(
-                              text: 'Yearly Revenue: \$12000',
-                              alignment: ChartAlignment.center,
-                              textStyle: TextStyle(color: Colors.black.withOpacity(0.8)),
-                            ),
-                            margin: EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-class ChartData {
-  ChartData(this.x, this.y);
-
-  final String x;
-  final double y;
-}
-
-
-
-
-void main() {
-  runApp(const MaterialApp(
-    home: RestaurantDashboardPage(),
-  ));
-}

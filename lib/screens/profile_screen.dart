@@ -1,18 +1,27 @@
 
 import 'package:deliveryapplication_mobile_restaurant/screens/payment_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
+import '../controllers/restaurant_controller.dart';
+import '../controllers/user_controller.dart';
+import '../ultilities/Constant.dart';
 import 'changepassword_screen.dart';
 import 'editprofile_screen.dart';
 import 'order_screen.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  ProfilePage({super.key});
+
+  final RestaurantController restaurantController = Get.put(RestaurantController());
+  final UserController userController = Get.put(UserController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Profile',  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
         backgroundColor: const Color(0xFF39c5c8),
         elevation: 0,
@@ -26,13 +35,13 @@ class ProfilePage extends StatelessWidget {
           children: [
             const SizedBox(height: 20.0),
             // Profile picture
-            const Center(
+            Center(
               child: Stack(
                 children: [
                   CircleAvatar(
                     radius: 60.0,
                     backgroundImage: NetworkImage(
-                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFQv4gzmNtZTnbl7lQMMmV5JWDO2_fIO2luA&s'), // Example image URL
+                        Constant.BACKEND_URL + restaurantController.restaurantImage.value),
                   ),
 
                 ],
@@ -96,7 +105,7 @@ class ProfilePage extends StatelessWidget {
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text('Logout'),
               onTap: () {
-                // Handle Logout action
+                userController.logout();
               },
             ),
             Divider(color: Colors.grey[300]),

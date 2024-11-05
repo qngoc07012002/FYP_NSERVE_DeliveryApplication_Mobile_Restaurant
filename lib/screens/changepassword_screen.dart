@@ -9,6 +9,7 @@ class ChangePasswordPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Change Password', style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,

@@ -23,6 +23,10 @@ if (flutterVersionName == null) {
     flutterVersionName = "1.0"
 }
 
+
+// Cập nhật phiên bản Kotlin
+ext.kotlin_version = '1.6.0'
+
 android {
     namespace = "com.example.deliveryapplication_mobile_restaurant"
     compileSdk = flutter.compileSdkVersion
@@ -51,6 +55,11 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    // Thêm các thư viện khác ở đây nếu cần
 }
 
 flutter {

@@ -25,8 +25,11 @@ class RestaurantController extends GetxController {
   }
 
   Future<void> fetchRestaurantInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('jwt_token', Constant.JWT);
+
     String? jwtToken = await getToken();
-    jwtToken = Constant.JWT;
+
 
     final response = await http.get(
       Uri.parse(Constant.RESTAURANT_INFO_URL),
@@ -46,13 +49,12 @@ class RestaurantController extends GetxController {
       isLoading.value = false; // Data has been loaded
     } else {
       isLoading.value = false; // Data loading failed
-      // Handle error here (e.g., show a Snackbar or a message)
+
     }
   }
 
   Future<void> updateRestaurantStatus(bool isOpenRestaurant) async {
     String token = await getToken();
-    token = Constant.JWT;
 
     final url = Uri.parse('${Constant.RESTAURANT_URL}/$restaurantId/status');
 

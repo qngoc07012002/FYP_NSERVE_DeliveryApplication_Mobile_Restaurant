@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:get/get.dart';
+import '../controllers/image_controller.dart';
+import '../models/food_model.dart';
+import '../controllers/food_controller.dart';
 
 class CreateFoodPage extends StatefulWidget {
   const CreateFoodPage({Key? key}) : super(key: key);
@@ -12,10 +16,12 @@ class CreateFoodPage extends StatefulWidget {
 class _CreateFoodPageState extends State<CreateFoodPage> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  File? _imageFile;
-  bool _isAvailable = true;
-
+  final _priceController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final FoodController foodController = Get.put(FoodController());
+  final ImageController imageController = Get.put(ImageController());
+
+  File? _imageFile;
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -28,19 +34,20 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
     }
   }
 
-  void _saveFoodItem() {
+  Future<void> _saveFoodItem() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final newFoodItem = FoodItem(
-        _nameController.text,
-        _imageFile?.path ?? '',
-        _descriptionController.text,
-        _isAvailable,
-      );
-
-      // Handle saving the new food item here
-      print('New food item: $newFoodItem');
-
-      Navigator.pop(context); // Close the page after saving
+      if (_imageFile != null) {
+        String? imgUrl = await imageController.uploadImage(_imageFile!);
+        imageController.isLoading(false);
+        if (imgUrl != null) {
+          double? price = double.tryParse(_priceController.text);
+         foodController.createFood(_nameController.text, _descriptionController.text, imgUrl, price!);
+          Navigator.pop(context);
+        }
+      } else {
+        Get.snackbar("Error", "Please select an image", snackPosition: SnackPosition.BOTTOM);
+        print('Please select an image');
+      }
     }
   }
 
@@ -48,25 +55,17 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Create Food Item',
-          style: TextStyle(
-            color: Colors.white, // White text color
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
+        centerTitle: true,
+        title: const Text('Create Food Item', style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),),
         backgroundColor: const Color(0xFF39c5c8),
-        centerTitle: true, // Center the title
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.0)),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save, color: Colors.white),
-            onPressed: _saveFoodItem,
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -76,46 +75,38 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
             children: [
               GestureDetector(
                 onTap: _pickImage,
-                child: Center( // Center the image picker in the form
+                child: Center(
                   child: Container(
-                    width: 150,  // Fixed width
-                    height: 150, // Fixed height
+                    width: 150,
+                    height: 150,
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                       image: _imageFile != null
-                          ? DecorationImage(
-                        image: FileImage(_imageFile!),
-                        fit: BoxFit.cover,
-                      )
+                          ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover)
                           : null,
                     ),
                     child: _imageFile == null
-                        ? const Icon(
-                      Icons.add_a_photo,
-                      size: 50,
-                      color: Colors.grey,
+                        ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.add_a_photo, size: 50, color: Colors.grey),
+                        Text("Add Image", style: TextStyle(color: Colors.grey)),
+                      ],
                     )
                         : null,
-                    alignment: Alignment.center,
                   ),
                 ),
               ),
-
-
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: 'Name',
                   border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.fastfood),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name';
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || value.isEmpty ? 'Please enter a name' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -123,56 +114,47 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
                 decoration: const InputDecoration(
                   labelText: 'Description',
                   border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.description),
                 ),
                 maxLines: 3,
+                validator: (value) => value == null || value.isEmpty ? 'Please enter a description' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _priceController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Price (USD)',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.attach_money),
+                ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
+                  if (value == null || value.isEmpty) return 'Please enter a price';
+                  if (double.tryParse(value) == null) return 'Please enter a valid number';
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  const Text('Available'),
-                  Switch(
-                    value: _isAvailable,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _isAvailable = value;
-                      });
-                    },
-                    activeColor: const Color(0xFF39c5c8),
-                    inactiveThumbColor: Colors.red,
-                    inactiveTrackColor: Colors.red[200],
-                  ),
-                ],
-              ),
+              const SizedBox(height: 24),
+              Obx(() => ElevatedButton(
+                onPressed: foodController.isCreating.value ? null : _saveFoodItem,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF39c5c8),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: imageController.isLoading.value
+                    ? const CircularProgressIndicator(
+                  color: Colors.white,
+                )
+                    : const Text(
+                  'Create',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              )),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-class FoodItem {
-  String name;
-  String imageUrl;
-  String? description;
-  bool isAvailable;
-
-  FoodItem(this.name, this.imageUrl, this.description, this.isAvailable);
-
-  @override
-  String toString() {
-    return 'FoodItem(name: $name, imageUrl: $imageUrl, description: $description, isAvailable: $isAvailable)';
-  }
-}
-
-void main() {
-  runApp(const MaterialApp(
-    home: CreateFoodPage(),
-  ));
 }

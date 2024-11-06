@@ -4,8 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
+import 'controllers/user_controller.dart';
+
 void main() {
-  runApp(const GetMaterialApp(
-    home: RestaurantDashboardPage(),
+
+  runApp(GetMaterialApp(
+    home: LoginPage(),
   ));
 }

@@ -61,7 +61,6 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
     controller.fetchRestaurantInfo();
   }
 
-  // Phương thức xây dựng trang chính
   Widget _buildHomePage() {
     return Obx(() {
       if (controller.isLoading.value) {

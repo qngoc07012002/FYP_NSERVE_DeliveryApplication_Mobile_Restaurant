@@ -1,35 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Để định dạng thời gian
+import 'package:intl/intl.dart';
+
+import '../models/order_model.dart';
+import '../models/orderitem_model.dart';
+import '../ultilities/Constant.dart'; // Để định dạng thời gian
 
 class OrderDetailPage extends StatelessWidget {
-  final Map<String, dynamic> order;
+  final Order order;
 
   const OrderDetailPage({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
-    // Fake data for delivery person
     final deliveryPerson = {
-      'name': 'Béo',
-      'avatarUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnihI8ux-tT_Z1JF8toQIn05jA8PO--cdCJELNtoYDXoA2C1FbkjQLE34NTjbsvyo0nXU&usqp=CAU'
+      'name': order.driverName ?? 'Unknown Driver',
+      'avatarUrl': Constant.BACKEND_URL + order.driverImgUrl!
     };
 
-    // If 'items' is not a List or null, use fake data
-    final List<Map<String, dynamic>> items = (order['items'] is List)
-        ? List<Map<String, dynamic>>.from(order['items'])
-        : [
-      {'name': 'Margherita Pizza', 'quantity': 2},
-      {'name': 'Pepperoni Pizza', 'quantity': 1},
-      {'name': 'California Roll', 'quantity': 3},
-      {'name': 'Spicy Tuna Roll', 'quantity': 2},
-    ];
+    final List<OrderItem> items = order.orderItems ?? [];
 
-    // Format the order time
-    final orderTime = (order['orderTime'] as DateTime?) ?? DateTime.now();
-    final formattedTime = DateFormat('yyyy-MM-dd – HH:mm').format(orderTime);
+    final createTime = DateTime.parse(order.createAt!);
+    final formattedTime = DateFormat('yyyy-MM-dd – HH:mm').format(createTime);
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
           'Order Details',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -46,7 +41,7 @@ class OrderDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Delivery person details
+            // Delivery Person Info
             Container(
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
@@ -83,9 +78,9 @@ class OrderDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 16.0),
 
-            // Restaurant details
+            // Order Code
             Text(
-              order['restaurantName'] ?? 'Unknown Restaurant',
+              order.orderCode ?? 'Unknown Order Code',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 24.0,
@@ -93,7 +88,7 @@ class OrderDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 8.0),
 
-            // Order details (styled like a receipt)
+            // Order Details (formatted as a receipt)
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
@@ -126,11 +121,11 @@ class OrderDetailPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            item['name'] ?? 'Unknown Item',
+                            item.foodName ?? 'Unknown Item',
                             style: const TextStyle(fontSize: 16.0),
                           ),
                           Text(
-                            'x${item['quantity'] ?? 0}',
+                            'x${item.quantity ?? 0}',
                             style: const TextStyle(color: Colors.grey, fontSize: 16.0),
                           ),
                         ],
@@ -138,7 +133,7 @@ class OrderDetailPage extends StatelessWidget {
                     ),
                   const Divider(height: 24.0, thickness: 1.0),
                   Text(
-                    '$formattedTime',
+                    formattedTime,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16.0,
@@ -149,7 +144,7 @@ class OrderDetailPage extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Text(
-                      'Total: \$${order['amount']?.toStringAsFixed(2) ?? '0.00'}',
+                      'Total: \$${order.totalPrice?.toStringAsFixed(2) ?? '0.00'}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20.0,
@@ -159,6 +154,28 @@ class OrderDetailPage extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16.0),
+
+            // Complete Order button (only if order status is PENDING)
+            if (order.orderStatus == 'PENDING')
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Define the action for completing the order here
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF39c5c8),
+                    padding: const EdgeInsets.symmetric(horizontal: 120.0, vertical: 12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Complete Order',
+                    style: TextStyle(color: Colors.white, fontSize: 18.0),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

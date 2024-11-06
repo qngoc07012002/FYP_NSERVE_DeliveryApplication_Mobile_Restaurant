@@ -5,6 +5,8 @@ import 'package:deliveryapplication_mobile_restaurant/screens/editfood_screen.da
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../ultilities/Constant.dart';
+
 class FoodManagementPage extends StatefulWidget {
   @override
   _FoodManagementPageState createState() => _FoodManagementPageState();
@@ -95,10 +97,18 @@ class FoodCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                foodItem.imageUrl,
+                Constant.IMG_URL + foodItem.imageUrl,
                 width: 100,
                 height: 100,
                 fit: BoxFit.cover,
+                errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                  return Image.asset(
+                    'assets/images/food_image.png',
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  );
+                },
               ),
             ),
             const SizedBox(width: 12),
@@ -145,7 +155,7 @@ class FoodCard extends StatelessWidget {
                 Switch(
                   value: foodItem.isAvailable,
                   onChanged: (bool value) async {
-                    await controller.updateFoodStatus(foodItem.id, value);
+                    await controller.updateFoodStatus(foodItem.id!, value);
                     onSwitchChanged(value); // gọi onSwitchChanged để cập nhật trạng thái
                   },
                   activeColor: const Color(0xFF39c5c8),
@@ -155,7 +165,7 @@ class FoodCard extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.edit, color: Colors.blue),
                   onPressed: () {
-                    Get.to(() => EditFoodPage());
+                    Get.to(() => EditFoodPage(foodItem: foodItem,));
                   },
                 ),
               ],

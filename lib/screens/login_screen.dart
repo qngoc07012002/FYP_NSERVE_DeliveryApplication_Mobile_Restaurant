@@ -1,8 +1,13 @@
 import 'dart:convert';
 import 'package:deliveryapplication_mobile_restaurant/screens/verification_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:http/http.dart' as http;
+
+import '../controllers/user_controller.dart';
+import '../ultilities/Constant.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,6 +21,13 @@ class _LoginPageState extends State<LoginPage> {
   String? phoneNumber;
   bool isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    final UserController userController = Get.put(UserController());
+    userController.checkTokenValidity();
+  }
+
   Future<void> login(BuildContext context) async {
     print(phoneNumber);
     setState(() {
@@ -23,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8080/nserve/auth/generateOTP'),
+      Uri.parse(Constant.GENERATE_OTP_URL),
       headers: {
         'Content-Type': 'application/json',
       },

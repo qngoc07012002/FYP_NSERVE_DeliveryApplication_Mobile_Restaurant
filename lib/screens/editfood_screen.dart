@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import '../controllers/food_controller.dart';
+import '../controllers/image_controller.dart';
+import '../models/food_model.dart';
+import '../ultilities/Constant.dart';
+
 class EditFoodPage extends StatefulWidget {
-  const EditFoodPage({Key? key}) : super(key: key);
+  final Food foodItem;
+
+  const EditFoodPage({Key? key, required this.foodItem}) : super(key: key);
 
   @override
   State<EditFoodPage> createState() => _EditFoodPageState();
@@ -12,77 +21,80 @@ class EditFoodPage extends StatefulWidget {
 class _EditFoodPageState extends State<EditFoodPage> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
+  late TextEditingController _priceController;
+  late String _imgUrl;
+  late String _id;
   File? _imageFile;
-  bool _isAvailable = true; // Fake data for availability
-
+  final FoodController foodController = Get.put(FoodController());
+  final ImageController imageController = Get.put(ImageController());
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    // Initialize with fake data
-    _nameController = TextEditingController(text: 'Burger');
-    _descriptionController = TextEditingController(text: 'Delicious beef burger with cheese');
-    _imageFile = null; // Set to null initially, will use default image if not picked
-    _isAvailable = true; // Fake data
+    _nameController = TextEditingController(text: widget.foodItem.name);
+    _descriptionController = TextEditingController(text: widget.foodItem.description);
+    _priceController = TextEditingController(text: widget.foodItem.price.toString());
+    _imgUrl = widget.foodItem.imageUrl;
+    _id = widget.foodItem.id!;
   }
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     try {
       final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
       if (pickedFile != null) {
         setState(() {
           _imageFile = File(pickedFile.path);
         });
       }
     } catch (e) {
-      // Handle errors or plugin issues
       print('Error picking image: $e');
     }
   }
 
   void _deleteFoodItem() {
-    // Handle delete functionality
-    // Here you should handle the deletion of the food item
     print('Food item deleted');
-
-    Navigator.pop(context); // Go back to the Food Management page
+    foodController.deleteFood(_id);
+    Navigator.pop(context);
   }
 
-  void _saveFoodItem() {
+  Future<void> _saveFoodItem() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final updatedFoodItem = {
-        'name': _nameController.text,
-        'imageUrl': _imageFile?.path ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s',
-        'description': _descriptionController.text,
-        'isAvailable': _isAvailable,
-      };
-
-      // Handle saving the updated food item here
-      print('Updated food item: $updatedFoodItem');
-
-      Navigator.pop(context); // Close the page after saving
+      if (_imageFile != null) {
+        _imgUrl = (await imageController.uploadImage(_imageFile!))!;
+        imageController.isLoading(false);
+      }
+      double? price = double.tryParse(_priceController.text);
+      foodController.updateFood(
+          _id,
+          _nameController.text,
+          _descriptionController.text, _imgUrl,
+          price!);
+      print('Updated food item: ${_imgUrl} ');
+      Navigator.pop(context);
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF39c5c8),
         centerTitle: true,
-        title: const Text(
-          'Edit Food Item',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+        title: const Text('Edit Food Item', style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),),
+        backgroundColor: const Color(0xFF39c5c8),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.0)),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView( // Added SingleChildScrollView here
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -105,7 +117,7 @@ class _EditFoodPageState extends State<EditFoodPage> {
                         )
                             : DecorationImage(
                           image: NetworkImage(
-                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyFc46glG2RnSW-wnlDZKghM-cmUlqskpIZA&s',
+                            Constant.IMG_URL + _imgUrl,
                           ),
                           fit: BoxFit.cover,
                         ),
@@ -115,10 +127,10 @@ class _EditFoodPageState extends State<EditFoodPage> {
                       bottom: 0,
                       right: 0,
                       child: IconButton(
-                        icon: const Icon(Icons.camera_alt),
+                        icon: const Icon(Icons.camera_alt, color: Colors.white),
                         onPressed: _pickImage,
-                        color: Colors.white,
                         iconSize: 30,
+                        color: const Color(0xFF39c5c8),
                       ),
                     ),
                   ],
@@ -154,28 +166,52 @@ class _EditFoodPageState extends State<EditFoodPage> {
                 },
               ),
               const SizedBox(height: 16),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: _deleteFoodItem,
-                    child: const Text('Delete'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white, backgroundColor: Colors.red, // Text color
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: _saveFoodItem,
-                    child: const Text('Save'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white, backgroundColor: const Color(0xFF39c5c8), // Text color
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    ),
-                  ),
-                ],
+              TextFormField(
+                controller: _priceController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Price',
+                  border: OutlineInputBorder(),
+                  prefixText: '\$', // Add currency prefix
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a price';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
+                },
               ),
+              const SizedBox(height: 24),
+              Obx(() {
+                return imageController.isLoading.value
+                    ? Center(child: CircularProgressIndicator())
+                    : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _deleteFoodItem,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                      child: const Text('Delete'),
+                    ),
+                    ElevatedButton(
+                      onPressed: _saveFoodItem,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF39c5c8),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                      child: const Text('Save'),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         ),

@@ -25,8 +25,8 @@ class RestaurantController extends GetxController {
   }
 
   Future<void> fetchRestaurantInfo() async {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-     // await prefs.setString('jwt_token', Constant.JWT);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+     await prefs.setString('jwt_token', Constant.JWT);
 
     String? jwtToken = await getToken();
 

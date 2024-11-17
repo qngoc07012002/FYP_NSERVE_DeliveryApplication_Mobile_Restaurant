@@ -9,7 +9,7 @@ class OrderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final OrderController orderController = Get.put(OrderController()); // Khởi tạo controller
+    final OrderController orderController = Get.find();
 
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +41,8 @@ class OrderPage extends StatelessWidget {
               return GestureDetector(
                 onTap: () {
                   print('Order Details: ${order}');
-                  Get.to(() => OrderDetailPage(order: order,));
+                  orderController.currentOrder.value = order;
+                  Get.to(() => OrderDetailPage());
                 },
                 child: Container(
                   padding: const EdgeInsets.all(12.0),
@@ -75,8 +76,7 @@ class OrderPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 4.0),
                             Text(
-                              '\$${order.totalPrice?.toStringAsFixed(2)}' +
-                                  (order.orderStatus == "PENDING" ? " - Pending" : ""),
+                              '\$${order.totalPrice?.toStringAsFixed(2)}${order.orderStatus != "DELIVERED" ? " - Pending" : ""}',
                               style: const TextStyle(
                                 fontSize: 14.0,
                                 color: Color(0xFF39c5c8),

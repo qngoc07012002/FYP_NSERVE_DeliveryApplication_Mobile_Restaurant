@@ -51,11 +51,21 @@ class OrderController extends GetxController {
   void subscribeReceiveOrder(){
     _webSocketService.subscribe(
       '/queue/restaurant/order/123',
-          (frame) {
+          (frame) async {
         if (frame.body != null) {
           Map<String, dynamic> jsonData = jsonDecode(frame.body!);
           print('Received message: $jsonData');
-          showNotificationDialog(frame.body!);
+          if (jsonData['action'] == "CUSTOMER_REQUEST_ORDER"){
+            showNotificationDialog(frame.body!);
+          }
+          if (jsonData['action'] == "DRIVER_ACCEPT_ORDER"){
+            await fetchOrders();
+           for (var order in orders){
+            if (order.id == currentOrder.value?.id){
+              currentOrder.value = order;
+            }
+           }
+          }
         }
       },
     );
@@ -130,6 +140,7 @@ class OrderController extends GetxController {
                 print(jsonData['body']['orderId']);
                 fetchOrderById(jsonData['body']['orderId']);
                 Get.back();
+                Get.to(OrderDetailPage());
               },
               child: const Text(
                 "Accept",
@@ -167,7 +178,6 @@ class OrderController extends GetxController {
       print(order);
       orders.add(order);
       currentOrder.value = order;
-      Get.to(OrderDetailPage());
       isLoading.value = false;
     } else {
       isLoading.value = false;

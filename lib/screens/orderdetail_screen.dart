@@ -13,17 +13,13 @@ class OrderDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final order = controller.currentOrder.value;
-      if (order == null) {
+      if (controller.currentOrder.value == null) {
         return const Center(child: CircularProgressIndicator());
       }
 
-      final deliveryPerson = {
-        'name': order.driverName ?? 'Unknown Driver',
-        'avatarUrl': Constant.BACKEND_URL + order.driverImgUrl!
-      };
 
-      final List<OrderItem> items = order.orderItems ?? [];
-      final createTime = DateTime.parse(order.createAt!);
+      final List<OrderItem> items = controller.currentOrder.value?.orderItems ?? [];
+      final createTime = DateTime.parse(order!.createAt!);
       final formattedTime = DateFormat('yyyy-MM-dd – HH:mm').format(createTime);
 
       return Scaffold(
@@ -68,7 +64,7 @@ class OrderDetailPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: order.orderStatus != 'PREPARING' || order.driverName == null
+                        child: controller.currentOrder.value?.orderStatus == 'FINDING_DRIVER' || order.driverName == null
                             ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
@@ -90,13 +86,13 @@ class OrderDetailPage extends StatelessWidget {
                             : Row(
                           children: [
                             CircleAvatar(
-                              backgroundImage: NetworkImage(deliveryPerson['avatarUrl']!),
+                              backgroundImage: NetworkImage(Constant.BACKEND_URL + controller.currentOrder.value!.driverImgUrl!),
                               radius: 30.0,
                             ),
                             const SizedBox(width: 16.0),
                             Expanded(
                               child: Text(
-                                deliveryPerson['name'] ?? 'Unknown',
+                                controller.currentOrder.value!.driverName ?? 'Unknown',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20.0,

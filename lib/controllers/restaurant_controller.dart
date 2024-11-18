@@ -73,4 +73,5 @@ class RestaurantController extends GetxController {
       print('Failed to update status: ${response.statusCode}');
     }
   }
+
 }

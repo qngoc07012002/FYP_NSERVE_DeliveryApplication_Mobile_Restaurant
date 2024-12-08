@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:deliveryapplication_mobile_restaurant/controllers/restaurant_controller.dart';
+import 'package:deliveryapplication_mobile_restaurant/screens/order_screen.dart';
 import 'package:deliveryapplication_mobile_restaurant/screens/orderdetail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,10 +15,12 @@ class OrderController extends GetxController {
   var orders = <Order>[].obs;
   var currentOrder = Rx<Order?>(null);
   final WebSocketService _webSocketService = Get.find();
+  var restaurantId = "".obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
+    await fetchRestaurantId();
     fetchOrders();
     subscribeReceiveOrder();
   }
@@ -41,6 +45,9 @@ class OrderController extends GetxController {
       final List<dynamic> ordersData = data['result'];
 
       orders.value = ordersData.map((orderJson) => Order.fromJson(orderJson)).toList();
+
+      orders.sort((a, b) => b.createAt!.compareTo(a.createAt!));
+      print("Order Length: ${orders.length}");
       isLoading.value = false;
     } else {
       isLoading.value = false;
@@ -49,8 +56,9 @@ class OrderController extends GetxController {
   }
 
   void subscribeReceiveOrder(){
+    print("Restaurant ID: ${restaurantId.value}");
     _webSocketService.subscribe(
-      '/queue/restaurant/order/123',
+      '/queue/restaurant/order/${restaurantId.value}',
           (frame) async {
         if (frame.body != null) {
           Map<String, dynamic> jsonData = jsonDecode(frame.body!);
@@ -66,9 +74,42 @@ class OrderController extends GetxController {
             }
            }
           }
+          if (jsonData['action'] == "NO_DRIVER_FOUND"){
+            Get.defaultDialog(
+              title: "Notification",
+              middleText: "No driver found for this order. Please cancel this order.",
+              textConfirm: "OK",
+              confirmTextColor: Colors.white,
+              onConfirm: () {
+                fetchOrders();
+                Get.back();
+              },
+              barrierDismissible: false,
+            );
+          }
         }
       },
     );
+  }
+
+  Future<void> fetchRestaurantId() async{
+    String? jwtToken = await getToken();
+
+    final response = await http.get(
+      Uri.parse(Constant.RESTAURANT_INFO_URL),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      restaurantId.value = data['id'];
+
+    } else {
+
+
+    }
   }
 
   void showNotificationDialog(String message) {
@@ -102,7 +143,7 @@ class OrderController extends GetxController {
           ],
         ),
       ),
-      barrierDismissible: false, // Không cho phép tắt dialog khi nhấn ra ngoài
+      barrierDismissible: false,
       radius: 15,
       actions: [
         Row(
@@ -135,10 +176,10 @@ class OrderController extends GetxController {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
-              onPressed: () {
+              onPressed: () async {
                 sendOrderStatusUpdate(jsonData['body']['orderId'], "RESTAURANT_ACCEPT_ORDER");
                 print(jsonData['body']['orderId']);
-                fetchOrderById(jsonData['body']['orderId']);
+                await fetchOrderById(jsonData['body']['orderId']);
                 Get.back();
                 Get.to(OrderDetailPage());
               },
@@ -166,7 +207,7 @@ class OrderController extends GetxController {
     String jwtToken = await getToken();
 
     final response = await http.get(
-      Uri.parse('${Constant.ORDER_URL}/$orderId'),
+      Uri.parse('${Constant.ORDER_RESTAURANT_URL}/$orderId'),
       headers: {
         'Authorization': 'Bearer $jwtToken',
       },
@@ -176,9 +217,9 @@ class OrderController extends GetxController {
       final Map<String, dynamic> data = json.decode(response.body);
       final Order order = Order.fromJson(data['result']);
       print(order);
-      orders.add(order);
       currentOrder.value = order;
       isLoading.value = false;
+      fetchOrders();
     } else {
       isLoading.value = false;
       print('Failed to load order by ID: ${response.statusCode}');

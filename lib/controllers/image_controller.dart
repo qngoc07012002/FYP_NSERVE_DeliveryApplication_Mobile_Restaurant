@@ -19,7 +19,7 @@ class ImageController extends GetxController {
 
   Future<String?> uploadImage(File imageFile) async {
     try {
-      isLoading(true); // Start loading
+      isLoading(true);
       String token = await getToken();
 
       final request = http.MultipartRequest(
@@ -49,7 +49,7 @@ class ImageController extends GetxController {
     } catch (e) {
       print('Error uploading image: $e');
     } finally {
-      isLoading(false); // End loading
+      isLoading(false);
     }
     return null;
   }

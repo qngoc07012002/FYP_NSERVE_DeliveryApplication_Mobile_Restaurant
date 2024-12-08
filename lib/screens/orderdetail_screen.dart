@@ -6,8 +6,15 @@ import '../models/orderitem_model.dart';
 import '../ultilities/Constant.dart';
 import '../controllers/order_controller.dart';
 
-class OrderDetailPage extends StatelessWidget {
-  final OrderController controller = Get.find(); // Tìm controller sử dụng GetX
+class OrderDetailPage extends StatefulWidget {
+  const OrderDetailPage({super.key});
+
+  @override
+  State<OrderDetailPage> createState() => _OrderDetailPageState();
+}
+
+class _OrderDetailPageState extends State<OrderDetailPage> {
+  OrderController controller = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +22,19 @@ class OrderDetailPage extends StatelessWidget {
       final order = controller.currentOrder.value;
       if (controller.currentOrder.value == null) {
         return const Center(child: CircularProgressIndicator());
+      } else {
+        print("ORDER STATUS: ${controller.currentOrder.value?.orderStatus}");
+        print("DRIVER NAME: ${controller.currentOrder.value?.driverName}");
+        print("DRIVER IMGURL: ${controller.currentOrder.value?.driverImgUrl}");
       }
 
 
+      if (controller.currentOrder.value?.orderStatus == "CANCELED"){
+        return const Center(child: Text('Order has been canceled!'));
+      }
+
       final List<OrderItem> items = controller.currentOrder.value?.orderItems ?? [];
-      final createTime = DateTime.parse(order!.createAt!);
+      final createTime = DateTime.parse(order!.createAt!).toLocal();
       final formattedTime = DateFormat('yyyy-MM-dd – HH:mm').format(createTime);
 
       return Scaffold(
@@ -64,7 +79,7 @@ class OrderDetailPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: controller.currentOrder.value?.orderStatus == 'FINDING_DRIVER' || order.driverName == null
+                        child: controller.currentOrder.value?.orderStatus == 'FINDING_DRIVER' || controller.currentOrder.value?.orderStatus == 'PENDING' || order.driverName == null
                             ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
@@ -105,14 +120,6 @@ class OrderDetailPage extends StatelessWidget {
 
                       // const SizedBox(height: 8.0),
 
-                      // Mã đơn hàng
-                      Text(
-                        order.orderCode ?? 'Unknown Order Code',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24.0,
-                        ),
-                      ),
                       const SizedBox(height: 8.0),
 
                       // Chi tiết đơn hàng
@@ -135,9 +142,14 @@ class OrderDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Ordered at: $formattedTime',
-                              style: TextStyle(color: Colors.grey[600], fontSize: 14.0),
+                              'Order Code: ${order.orderCode}' ,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
+                                color: Colors.black87,
+                              ),
                             ),
+
                             const SizedBox(height: 8.0),
                             const Text(
                               'Order Items',
@@ -156,6 +168,11 @@ class OrderDetailPage extends StatelessWidget {
                               'Total: \$${order.totalPrice}',
                               style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                             ),
+                            const Divider(),
+                            Text(
+                              'Ordered at: $formattedTime',
+                              style: TextStyle(color: Colors.grey[600], fontSize: 14.0),
+                            ),
                           ],
                         ),
                       ),
@@ -163,59 +180,65 @@ class OrderDetailPage extends StatelessWidget {
                   ),
                 ),
               ),
-              // Nút "Complete Order"
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    // Nút "Hủy đơn hàng"
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red, // Màu đỏ cho nút hủy
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
+              // "Cancel Order"
+              if (controller.currentOrder.value?.orderStatus != "DELIVERED" && controller.currentOrder.value?.orderStatus != "CANCELED")
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      // Nút "Hủy đơn hàng"
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red, // Màu đỏ cho nút hủy
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          onPressed: () async {
+                            // Gọi hàm hủy đơn hàng
+                            controller.sendOrderStatusUpdate(order.id!, "RESTAURANT_DECLINE_ORDER");
+                            controller.currentOrder.value?.orderStatus = "CANCELED";
+                            await controller.fetchOrders();
+                            Get.back();
+                          },
+                          child: const Text(
+                            'Cancel Order',
+                            style: TextStyle(color: Colors.white, fontSize: 18.0),
                           ),
                         ),
-                        onPressed: () {
-                          // Gọi hàm hủy đơn hàng
-                          controller.sendOrderStatusUpdate(order.id!, "RESTAURANT_DECLINE_ORDER");
-                          controller.fetchOrders();
-                          Get.back();
-                        },
-                        child: const Text(
-                          'Cancel Order',
-                          style: TextStyle(color: Colors.white, fontSize: 18.0),
-                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16.0), // Khoảng cách giữa hai nút
+                      const SizedBox(width: 16.0), // Khoảng cách giữa hai nút
 
-                    // Nút "Complete Order"
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF39c5c8),
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
+                      // Nút "Complete Order"
+                      if (controller.currentOrder.value?.orderStatus == "PREPARING")
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF39c5c8),
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          onPressed: () {
+                            controller.sendOrderStatusUpdate(order.id!, "RESTAURANT_PREPARED_ORDER");
+                            controller.currentOrder.value?.orderStatus = "DELIVERED";
+                            Get.snackbar("Complete Order", "Order Completed");
+                            setState(() {
+
+                            });
+                          },
+                          child: const Text(
+                            'Complete Order',
+                            style: TextStyle(color: Colors.white, fontSize: 18.0),
                           ),
                         ),
-                        onPressed: () {
-                          // Gọi hàm hoàn thành đơn hàng
-                          //controller.completeOrder(order.id!);
-                          Get.snackbar("Complete Order", "Order Completed");
-                        },
-                        child: const Text(
-                          'Complete Order',
-                          style: TextStyle(color: Colors.white, fontSize: 18.0),
-                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
             ],
           ),

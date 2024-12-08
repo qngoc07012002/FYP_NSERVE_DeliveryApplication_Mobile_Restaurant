@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     final UserController userController = Get.put(UserController());
-    userController.checkTokenValidity();
+   // userController.checkTokenValidity();
   }
 
   Future<void> login(BuildContext context) async {

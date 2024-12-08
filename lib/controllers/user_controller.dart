@@ -52,11 +52,11 @@ class UserController extends GetxController {
         Get.to(RestaurantDashboardPage());
       } else {
         print("Valid token");
-        // Get.snackbar('Error', 'Token is no longer valid. Please log in again.');
-        // Get.to(const LoginPage());
+        Get.snackbar('Error', 'Token is no longer valid. Please log in again.');
+        Get.to(const LoginPage());
       }
     } else {
-      // Get.snackbar('Error', 'Failed to check token validity: ${response.reasonPhrase}');
+      Get.snackbar('Error', 'Failed to check token validity: ${response.reasonPhrase}');
     }
   }
 

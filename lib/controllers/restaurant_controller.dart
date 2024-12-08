@@ -47,6 +47,7 @@ class RestaurantController extends GetxController {
       restaurantRating.value = data['rating'];
       isOpen.value = data['status'] == 'ONLINE';
       isLoading.value = false; // Data has been loaded
+
     } else {
       isLoading.value = false; // Data loading failed
 

@@ -20,7 +20,7 @@ class RestaurantDashboardPage extends StatefulWidget {
 class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
   int _selectedIndex = 0;
 
-  final RestaurantController controller = Get.put(RestaurantController());
+  final RestaurantController controller = Get.find();
 
 
   // Sample data

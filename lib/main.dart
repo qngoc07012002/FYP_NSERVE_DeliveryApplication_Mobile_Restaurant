@@ -1,4 +1,5 @@
 import 'package:deliveryapplication_mobile_restaurant/controllers/order_controller.dart';
+import 'package:deliveryapplication_mobile_restaurant/controllers/restaurant_controller.dart';
 import 'package:deliveryapplication_mobile_restaurant/screens/homepage_screen.dart';
 import 'package:deliveryapplication_mobile_restaurant/screens/login_screen.dart';
 import 'package:deliveryapplication_mobile_restaurant/services/websocket_service.dart';
@@ -12,6 +13,7 @@ import 'controllers/user_controller.dart';
 
 void main() {
   Get.put(WebSocketService());
+  Get.put(RestaurantController());
   Get.put(OrderController());
   runApp(GetMaterialApp(
     home: RestaurantDashboardPage(),

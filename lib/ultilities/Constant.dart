@@ -39,7 +39,7 @@ class Constant {
   static const WEBSOCKET_URL = "$BACKEND_URL/ws";
 
   // ignore: constant_identifier_names
-  static const JWT = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJxbmdvYzA3MDEyMDAyIiwic3ViIjoiOTQwZjJlM2ItNDY1Yi00ZjI1LWIzNTQtZDM2YWUxOGZiZjMyIiwiZXhwIjozNjE3MzE3NjYyODYsImlhdCI6MTczMTc2NjI4NiwianRpIjoiMmEzNTQ5OTAtOTg0NS00YzJhLWFiYWYtNjgyOTM1ZDc2NTAwIiwic2NvcGUiOiJST0xFX1JFU1RBVVJBTlQgUk9MRV9DVVNUT01FUiBST0xFX0FETUlOIFJPTEVfRFJJVkVSIn0.ZJuDaI0Lp_H-p_qDGpSgTaVxgdQDnuYlmRQDJOxnmFYlKKJf4LsjZakFxTwlNpqKJF4tN7KvFsq5OcO9VF2Lcg";
+  static const JWT = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJxbmdvYzA3MDEyMDAyIiwic3ViIjoiOTQwZjJlM2ItNDY1Yi00ZjI1LWIzNTQtZDM2YWUxOGZiZjMyIiwiZXhwIjozNjE3MzM1MTQyMzksImlhdCI6MTczMzUxNDIzOSwianRpIjoiNjY1MjMwMTEtMzE4ZS00ZTUwLWI3NzktMWE1ZGRhMzkyYmU1Iiwic2NvcGUiOiJST0xFX0FETUlOIFJPTEVfUkVTVEFVUkFOVCBST0xFX0NVU1RPTUVSIFJPTEVfRFJJVkVSIn0.fyad8YgYSOMfiqFW7cdfIvjQGt2xuYyB45oM6PK-ze2HXMh_KrWFtjmJ26atRJsgyjuebTcGWJsBWosi-XMfQg";
 
   //Nếu là Emulator ở máy thì dùng 10.0.2.2 nếu ngoài thì vào ipconfig check ipv4
 }

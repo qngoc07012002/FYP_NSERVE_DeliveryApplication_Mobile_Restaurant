@@ -24,6 +24,9 @@ class Constant {
   static const RESTAURANT_INFO_URL = "$RESTAURANT_URL/info";
 
   // ignore: constant_identifier_names
+  static const STATISTIC_URL = "$ORDER_URL/statistics";
+
+  // ignore: constant_identifier_names
   static const FOOD_URL = "$BACKEND_URL/foods";
 
   // ignore: constant_identifier_names

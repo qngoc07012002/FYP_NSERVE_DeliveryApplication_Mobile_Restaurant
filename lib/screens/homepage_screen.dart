@@ -160,7 +160,7 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Today\'s Revenue',
+                              'Total\'s Revenue',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -169,7 +169,7 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              '\$150', // Thay thế bằng doanh thu thực tế nếu có
+                              '\$${controller.revenue.value}', // Thay thế bằng doanh thu thực tế nếu có
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -201,7 +201,7 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              '20 Orders',
+                              '${controller.orderCount.value} Orders',
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,

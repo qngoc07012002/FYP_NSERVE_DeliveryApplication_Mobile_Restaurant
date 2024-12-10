@@ -13,12 +13,14 @@ class RestaurantController extends GetxController {
   var restaurantRating = 0.0.obs;
   var restaurantId = ''.obs;
   var balance = 0.0.obs;
-
+  var revenue = 0.0.obs;
+  var orderCount = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchRestaurantInfo();
+    fetchStatistics();
   }
 
   Future<String> getToken() async {
@@ -54,6 +56,25 @@ class RestaurantController extends GetxController {
     } else {
       isLoading.value = false; // Data loading failed
 
+    }
+  }
+
+  Future<void> fetchStatistics() async {
+    String? jwtToken = await getToken();
+
+    final response = await http.get(
+      Uri.parse(Constant.STATISTIC_URL),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      revenue.value = data['result']['revenue'];
+      orderCount.value = data['result']['orderCount'];
+    } else {
+      print('Failed to fetch statistics: ${response.statusCode}');
     }
   }
 

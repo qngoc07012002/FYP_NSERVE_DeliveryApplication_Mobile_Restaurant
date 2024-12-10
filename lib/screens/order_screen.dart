@@ -14,13 +14,21 @@ class OrderPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Orders', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF39c5c8),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.0)),
+        title: const Text(
+          'Orders',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+        toolbarHeight: 80.0,
       ),
       body: Obx(() {
         if (orderController.isLoading.value) {
@@ -67,8 +75,6 @@ class OrderPage extends StatelessWidget {
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                             ),
                             const SizedBox(height: 4.0),
-
-                            // Hiển thị chung cho cả FOOD và RIDE
                             Text(
                               'Order Code: ${order.orderCode}',
                               style: const TextStyle(color: Colors.grey),

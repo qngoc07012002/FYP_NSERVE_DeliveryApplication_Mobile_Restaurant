@@ -83,16 +83,21 @@ class _EditFoodPageState extends State<EditFoodPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Edit Food Item', style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),),
         backgroundColor: const Color(0xFF39c5c8),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.0)),
+        title: const Text(
+          'Edit Food',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+        toolbarHeight: 80.0,
       ),
       body: SingleChildScrollView( // Added SingleChildScrollView here
         padding: const EdgeInsets.all(16.0),

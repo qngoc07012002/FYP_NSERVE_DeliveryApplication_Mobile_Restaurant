@@ -12,11 +12,13 @@ class RestaurantController extends GetxController {
   var restaurantImage = ''.obs;
   var restaurantRating = 0.0.obs;
   var restaurantId = ''.obs;
+  var balance = 0.0.obs;
+
 
   @override
   void onInit() {
     super.onInit();
-    fetchRestaurantInfo(); // Fetch restaurant info on init
+    fetchRestaurantInfo();
   }
 
   Future<String> getToken() async {
@@ -25,8 +27,8 @@ class RestaurantController extends GetxController {
   }
 
   Future<void> fetchRestaurantInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-     await prefs.setString('jwt_token', Constant.JWT);
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    //  await prefs.setString('jwt_token', Constant.JWT);
 
     String? jwtToken = await getToken();
 
@@ -46,6 +48,7 @@ class RestaurantController extends GetxController {
       restaurantImage.value = data['imgUrl'];
       restaurantRating.value = data['rating'];
       isOpen.value = data['status'] == 'ONLINE';
+      balance.value = data['balance'];
       isLoading.value = false; // Data has been loaded
 
     } else {

@@ -21,19 +21,22 @@ class _FoodManagementPageState extends State<FoodManagementPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: AppBar(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-          ),
-          backgroundColor: const Color(0xFF39c5c8),
           centerTitle: true,
+          backgroundColor: const Color(0xFF39c5c8),
           title: const Text(
             'Food Management',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
               color: Colors.white,
-              fontSize: 22,
+              fontWeight: FontWeight.bold,
             ),
           ),
+          iconTheme: const IconThemeData(
+            color: Colors.white,
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+          toolbarHeight: 80.0,
         ),
       ),
       body: Obx(() {

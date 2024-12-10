@@ -9,7 +9,13 @@ class Constant {
   static const GENERATE_OTP_URL = "$BACKEND_URL/auth/generateOTP";
 
   // ignore: constant_identifier_names
+  static const GENERATE_OTP_RESTAURANT_URL = "$BACKEND_URL/auth/restaurant/generateOTP";
+
+  // ignore: constant_identifier_names
   static const VERIFY_OTP_URL = "$BACKEND_URL/auth/verifyOTP";
+
+  // ignore: constant_identifier_names
+  static const REGISTER_RESTAURANT_URL = "$BACKEND_URL/users/registerRestaurant";
 
   // ignore: constant_identifier_names
   static const RESTAURANT_URL = "$BACKEND_URL/restaurants";
@@ -33,13 +39,16 @@ class Constant {
   static const INTROSPECT_URL = "$BACKEND_URL/auth/introspect";
 
   // ignore: constant_identifier_names
+  static const UPDATE_RESTAURANT_URL = "$BACKEND_URL/users/updateRestaurant";
+
+  // ignore: constant_identifier_names
   static const IMG_URL = "https://res.cloudinary.com/dsdowcig9";
 
   // ignore: constant_identifier_names
   static const WEBSOCKET_URL = "$BACKEND_URL/ws";
 
   // ignore: constant_identifier_names
-  static const JWT = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJxbmdvYzA3MDEyMDAyIiwic3ViIjoiOTQwZjJlM2ItNDY1Yi00ZjI1LWIzNTQtZDM2YWUxOGZiZjMyIiwiZXhwIjozNjE3MzM1MTQyMzksImlhdCI6MTczMzUxNDIzOSwianRpIjoiNjY1MjMwMTEtMzE4ZS00ZTUwLWI3NzktMWE1ZGRhMzkyYmU1Iiwic2NvcGUiOiJST0xFX0FETUlOIFJPTEVfUkVTVEFVUkFOVCBST0xFX0NVU1RPTUVSIFJPTEVfRFJJVkVSIn0.fyad8YgYSOMfiqFW7cdfIvjQGt2xuYyB45oM6PK-ze2HXMh_KrWFtjmJ26atRJsgyjuebTcGWJsBWosi-XMfQg";
+  static const JWT = "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJxbmdvYzA3MDEyMDAyIiwic3ViIjoiOTQwZjJlM2ItNDY1Yi00ZjI1LWIzNTQtZDM2YWUxOGZiZjMyIiwiZXhwIjoxNzQxODU4MjI2LCJpYXQiOjE3MzM4NTgyMjYsImp0aSI6IjI0MWRhMjkwLTZmNGItNGRiMC04MjYyLTYxYWYzZDZiMTBiMCIsInNjb3BlIjoiIn0.12sKJ9QYa-BhG5mXNimIgTrhHrO4zRcrF7UJD2VsSPg05L0gdDrsvWS12VSCqdGD6Tnr9ZU4P9zbXnzYFwqC2A";
 
   //Nếu là Emulator ở máy thì dùng 10.0.2.2 nếu ngoài thì vào ipconfig check ipv4
 }

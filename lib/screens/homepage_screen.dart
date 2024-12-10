@@ -89,7 +89,7 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
                       borderRadius: BorderRadius.circular(8),
                       image: DecorationImage(
                         image: NetworkImage(
-                          Constant.BACKEND_URL + controller.restaurantImage.value,
+                          Constant.IMG_URL + controller.restaurantImage.value,
                         ),
                         fit: BoxFit.cover,
                       ),
@@ -201,7 +201,7 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              '20 Orders', // Thay thế bằng số đơn hàng thực tế nếu có
+                              '20 Orders',
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -354,14 +354,7 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
             icon: Icon(Icons.fastfood),
             label: 'Food',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.reorder),
-            label: 'Order',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message),
-            label: 'Message',
-          ),
+
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
@@ -381,8 +374,6 @@ class _RestaurantDashboardPageState extends State<RestaurantDashboardPage> {
         children: [
           _buildHomePage(),
           FoodManagementPage(),
-          OrderPage(),
-          MessagePage(),
           ProfilePage(),
         ],
       ),

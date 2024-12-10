@@ -56,16 +56,21 @@ class _CreateFoodPageState extends State<CreateFoodPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Create Food Item', style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),),
         backgroundColor: const Color(0xFF39c5c8),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.0)),
+        title: const Text(
+          'Create Food',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+        toolbarHeight: 80.0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

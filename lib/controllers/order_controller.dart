@@ -16,7 +16,7 @@ class OrderController extends GetxController {
   var currentOrder = Rx<Order?>(null);
   final WebSocketService _webSocketService = Get.find();
   var restaurantId = "".obs;
-
+  RestaurantController restaurantController = Get.find();
   @override
   void onInit() async {
     super.onInit();
@@ -44,7 +44,9 @@ class OrderController extends GetxController {
       final Map<String, dynamic> data = json.decode(response.body);
       final List<dynamic> ordersData = data['result'];
 
-      orders.value = ordersData.map((orderJson) => Order.fromJson(orderJson)).toList();
+      orders.value = ordersData.map((orderJson) => Order.fromJson(orderJson))
+          .where((order) => order.orderStatus != "CANCELED")
+          .toList();
 
       orders.sort((a, b) => b.createAt!.compareTo(a.createAt!));
       print("Order Length: ${orders.length}");
@@ -86,6 +88,9 @@ class OrderController extends GetxController {
               },
               barrierDismissible: false,
             );
+          }
+          if (jsonData['action'] == "DRIVER_DELIVERED_ORDER"){
+            restaurantController.fetchRestaurantInfo();
           }
         }
       },

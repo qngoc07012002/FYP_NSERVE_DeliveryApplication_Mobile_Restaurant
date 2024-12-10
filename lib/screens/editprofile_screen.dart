@@ -1,130 +1,210 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:deliveryapplication_mobile_restaurant/controllers/restaurant_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import '../controllers/image_controller.dart';
+import '../ultilities/Constant.dart';
 
-class EditProfilePage extends StatelessWidget {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
+class EditRestaurantProfilePage extends StatefulWidget {
+  const EditRestaurantProfilePage({super.key});
+
+  @override
+  State<EditRestaurantProfilePage> createState() => _EditRestaurantProfilePageState();
+}
+
+class _EditRestaurantProfilePageState extends State<EditRestaurantProfilePage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  File? restaurantImage;
+  bool isLoading = false;
+  ImageController imageController = Get.put(ImageController());
+  final RestaurantController restaurantController = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with existing restaurant data
+    _nameController.text = restaurantController.restaurantName.value;
+    _descriptionController.text = restaurantController.restaurantDescription.value;
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedImage =
+    await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        restaurantImage = File(pickedImage.path);
+      });
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (_nameController.text.isEmpty ||
+        _descriptionController.text.isEmpty ) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all the fields')),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    // Perform update logic
+    print('Name: ${_nameController.text}');
+    print('Description: ${_descriptionController.text}');
+    print('Image Path: ${restaurantImage?.path}');
+    if (restaurantImage != null){
+      String? imgUrl = await imageController.uploadImage(restaurantImage!);
+      restaurantController.restaurantImage.value = imgUrl!;
+    }
+
+    restaurantController.restaurantName.value = _nameController.text;
+    restaurantController.restaurantDescription.value = _descriptionController.text;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token =  prefs.getString('jwt_token') ?? '';
+
+    final response = await http.post(
+      Uri.parse(Constant.UPDATE_RESTAURANT_URL),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode({
+        "restaurantName": _nameController.text,
+        "description": _descriptionController.text,
+        "imgUrl": restaurantController.restaurantImage.value,
+      }),
+    );
+    setState(() {
+      isLoading = false;
+    });
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData['code'] == 1000) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Update successful!')),
+        );
+
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Something went wrong, please try again')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Edit Profile', style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),),
         backgroundColor: const Color(0xFF39c5c8),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.0)),
+        title: const Text(
+          'Edit Profile',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+        toolbarHeight: 80.0,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 60.0,
-                      backgroundImage: NetworkImage(
-                          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFQv4gzmNtZTnbl7lQMMmV5JWDO2_fIO2luA&s'), // Replace with your own image URL
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(color: Colors.grey),
+                      image: restaurantImage != null
+                          ? DecorationImage(image: FileImage(restaurantImage!), fit: BoxFit.cover)
+                          : (restaurantController.restaurantImage.value.isNotEmpty ?? false)
+                          ? DecorationImage(
+                        image: NetworkImage(
+                            Constant.IMG_URL +  restaurantController.restaurantImage.value),
+                        fit: BoxFit.cover,
+                      )
+                          : null,
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.camera_alt, color: Color(0xFF39c5c8)),
-                          onPressed: () {
-                            // Handle change profile picture
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+                    child: restaurantImage == null && (restaurantController.restaurantImage.value.isEmpty ?? true)
+                        ? const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add_a_photo, size: 40, color: Colors.grey),
+                        SizedBox(height: 8),
+                      ],
+                    )
+                        : null,
+                  ),
                 ),
               ),
-              const SizedBox(height: 30.0),
-              _buildTextField('Name', 'Enter your name', nameController),
-              const SizedBox(height: 20.0),
-              _buildTextField('Email', 'Enter your email', emailController),
-              const SizedBox(height: 20.0),
-              _buildTextField('Phone Number', 'Enter your phone number', phoneController),
-              const SizedBox(height: 40.0),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle save action
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 15.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    backgroundColor: const Color(0xFF39c5c8),
+              const SizedBox(height: 16.0),
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Restaurant Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: const Text('Save Changes', style: TextStyle(fontSize: 16.0, color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              TextField(
+                controller: _descriptionController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: _submitForm,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF39c5c8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: isLoading
+                    ? CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+                    : const Text(
+                  'Save Changes',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField(String label, String hintText, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[700],
-          ),
-        ),
-        const SizedBox(height: 8.0),
-        TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            hintText: hintText,
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: Color(0xFF39c5c8), width: 2.0),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: Colors.grey[300]!, width: 1.0),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -7,28 +7,35 @@ import 'package:get/get_core/src/get_main.dart';
 import '../controllers/restaurant_controller.dart';
 import '../controllers/user_controller.dart';
 import '../ultilities/Constant.dart';
-import 'changepassword_screen.dart';
 import 'editprofile_screen.dart';
 import 'order_screen.dart';
 
 class ProfilePage extends StatelessWidget {
   ProfilePage({super.key});
 
-  final RestaurantController restaurantController = Get.put(RestaurantController());
-  final UserController userController = Get.put(UserController());
+  final RestaurantController restaurantController = Get.find();
+  final UserController userController = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Profile',  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
         backgroundColor: const Color(0xFF39c5c8),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.0)),
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+        ),
+        toolbarHeight: 80.0,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -36,16 +43,29 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 20.0),
             // Profile picture
             Center(
-              child: Stack(
+              child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 60.0,
-                    backgroundImage: NetworkImage(
-                        Constant.BACKEND_URL + restaurantController.restaurantImage.value),
-                  ),
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 60.0,
+                        backgroundImage: NetworkImage(
+                            Constant.IMG_URL + restaurantController.restaurantImage.value),
+                      ),
 
+                    ],
+                  ),
+                  const SizedBox(height: 10.0),
+                  Text(
+                    'Balance: \$${restaurantController.balance.value.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
                 ],
-              ),
+              )
             ),
             const SizedBox(height: 20.0),
             // Profile options
@@ -56,20 +76,7 @@ class ProfilePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EditProfilePage(),
-                  ),
-                );
-              },
-            ),
-            Divider(color: Colors.grey[300]),
-            ListTile(
-              leading: const Icon(Icons.lock, color: Color(0xFF39c5c8)),
-              title: const Text('Change Password'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChangePasswordPage(),
+                    builder: (context) => EditRestaurantProfilePage(),
                   ),
                 );
               },

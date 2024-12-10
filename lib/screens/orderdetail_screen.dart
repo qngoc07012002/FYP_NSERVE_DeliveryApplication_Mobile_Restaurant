@@ -1,3 +1,4 @@
+import 'package:deliveryapplication_mobile_restaurant/screens/homepage_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -28,10 +29,68 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         print("DRIVER IMGURL: ${controller.currentOrder.value?.driverImgUrl}");
       }
 
-
-      if (controller.currentOrder.value?.orderStatus == "CANCELED"){
-        return const Center(child: Text('Order has been canceled!'));
-      }
+      // if (controller.currentOrder.value!.orderStatus! == "CANCELED"){
+      //   Get.dialog(
+      //       Dialog(
+      //         shape: RoundedRectangleBorder(
+      //           borderRadius: BorderRadius.circular(15.0),
+      //         ),
+      //         child: Container(
+      //           padding: const EdgeInsets.all(16.0),
+      //           decoration: BoxDecoration(
+      //             color: Colors.white,
+      //             borderRadius: BorderRadius.circular(15.0),
+      //           ),
+      //           child: Column(
+      //             mainAxisSize: MainAxisSize.min,
+      //             children: [
+      //               Text(
+      //                 "Notification",
+      //                 style: TextStyle(
+      //                   fontSize: 18,
+      //                   fontWeight: FontWeight.bold,
+      //                   color: Colors.black,
+      //                 ),
+      //               ),
+      //               const SizedBox(height: 16.0),
+      //
+      //               Text(
+      //                 "No Driver Found.",
+      //                 textAlign: TextAlign.center,
+      //                 style: TextStyle(
+      //                   fontSize: 16,
+      //                   color: Colors.grey[700],
+      //                 ),
+      //               ),
+      //               const SizedBox(height: 24.0),
+      //
+      //               ElevatedButton(
+      //                 onPressed: () {
+      //                   controller.fetchOrders();
+      //                   Get.back();
+      //                   Get.offAll(RestaurantDashboardPage());
+      //                 },
+      //                 style: ElevatedButton.styleFrom(
+      //                   backgroundColor: const Color(0xFF39c5c8), // Màu nút
+      //                   shape: RoundedRectangleBorder(
+      //                     borderRadius: BorderRadius.circular(8.0),
+      //                   ),
+      //                   padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
+      //                 ),
+      //                 child: Text(
+      //                   "OK",
+      //                   style: TextStyle(
+      //                     fontSize: 16,
+      //                     color: Colors.white,
+      //                     fontWeight: FontWeight.bold,
+      //                   ),
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       ));
+      // }
 
       final List<OrderItem> items = controller.currentOrder.value?.orderItems ?? [];
       final createTime = DateTime.parse(order!.createAt!).toLocal();
@@ -40,16 +99,21 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text(
-            'Order Details',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
           backgroundColor: const Color(0xFF39c5c8),
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.0)),
+          title: const Text(
+            'Invoice',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          iconTheme: const IconThemeData(
+            color: Colors.white,
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+          toolbarHeight: 80.0,
         ),
         body: RefreshIndicator(
           onRefresh: () async {
@@ -101,7 +165,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                             : Row(
                           children: [
                             CircleAvatar(
-                              backgroundImage: NetworkImage(Constant.BACKEND_URL + controller.currentOrder.value!.driverImgUrl!),
+                              backgroundImage: NetworkImage(Constant.IMG_URL + controller.currentOrder.value!.driverImgUrl!),
                               radius: 30.0,
                             ),
                             const SizedBox(width: 16.0),

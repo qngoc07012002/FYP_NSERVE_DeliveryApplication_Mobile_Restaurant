@@ -2,6 +2,7 @@ import 'package:deliveryapplication_mobile_restaurant/controllers/order_controll
 import 'package:deliveryapplication_mobile_restaurant/controllers/restaurant_controller.dart';
 import 'package:deliveryapplication_mobile_restaurant/screens/homepage_screen.dart';
 import 'package:deliveryapplication_mobile_restaurant/screens/login_screen.dart';
+import 'package:deliveryapplication_mobile_restaurant/screens/register_screen.dart';
 import 'package:deliveryapplication_mobile_restaurant/services/websocket_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,9 +14,9 @@ import 'controllers/user_controller.dart';
 
 void main() {
   Get.put(WebSocketService());
-  Get.put(RestaurantController());
-  Get.put(OrderController());
+  Get.put(UserController());
+
   runApp(GetMaterialApp(
-    home: RestaurantDashboardPage(),
+    home: LoginPage(),
   ));
 }

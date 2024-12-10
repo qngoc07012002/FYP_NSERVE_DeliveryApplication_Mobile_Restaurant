@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:deliveryapplication_mobile_restaurant/controllers/restaurant_controller.dart';
+import 'package:deliveryapplication_mobile_restaurant/screens/register_screen.dart';
 import 'package:deliveryapplication_mobile_restaurant/screens/verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,12 +22,12 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController phoneController = TextEditingController();
   String? phoneNumber;
   bool isLoading = false;
+  UserController userController = Get.find();
 
   @override
   void initState() {
     super.initState();
-    final UserController userController = Get.put(UserController());
-   // userController.checkTokenValidity();
+    userController.checkTokenValidity();
   }
 
   Future<void> login(BuildContext context) async {
@@ -35,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     final response = await http.post(
-      Uri.parse(Constant.GENERATE_OTP_URL),
+      Uri.parse(Constant.GENERATE_OTP_RESTAURANT_URL),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -43,15 +45,15 @@ class _LoginPageState extends State<LoginPage> {
         'phoneNumber': phoneNumber,
       }),
     );
-
+    userController.phoneNumber.value = phoneNumber!;
     setState(() {
       isLoading = false;
     });
 
+    final Map<String, dynamic> responseData = json.decode(response.body);
     if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
+
       if (responseData['code'] == 1000) {
-        // Successful response
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -59,15 +61,21 @@ class _LoginPageState extends State<LoginPage> {
           ),
         );
       } else {
-        // Handle other responses if necessary
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Unexpected error occurred')),
         );
       }
     } else if (response.statusCode == 404) {
-      // Handle response errors
+      if (responseData['code'] == 1002){
+        Get.to(RestaurantRegisterPage());
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unexpected error occurred')),
+        );
+      }
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid Phone')),
+        const SnackBar(content: Text('Failed to login. Please try again.')),
       );
     }
   }
@@ -111,6 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: isLoading ? null : () {
+                     // Get.to(RestaurantRegisterPage());
                       login(context);
                       print("Login button pressed");
                     },

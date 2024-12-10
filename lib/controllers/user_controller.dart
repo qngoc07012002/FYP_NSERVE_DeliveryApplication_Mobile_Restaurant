@@ -1,3 +1,4 @@
+import 'package:deliveryapplication_mobile_restaurant/controllers/restaurant_controller.dart';
 import 'package:deliveryapplication_mobile_restaurant/screens/login_screen.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -6,13 +7,19 @@ import 'dart:convert';
 
 import '../screens/homepage_screen.dart';
 import '../ultilities/Constant.dart';
+import 'order_controller.dart';
 
 class UserController extends GetxController {
+  var phoneNumber = ''.obs;
 
   Future<void> logout() async {
     final String token = await getToken();
-    const url = Constant.LOGOUT_URL;
 
+
+
+    const url = Constant.LOGOUT_URL;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('jwt_token');
     final response = await http.post(
       Uri.parse(url),
       headers: {
@@ -22,18 +29,19 @@ class UserController extends GetxController {
     );
 
     if (response.statusCode == 200) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('jwt_token');
+
 
       Get.snackbar('Success', 'You have logged out successfully');
-      Get.to(const LoginPage());
-    } else {
-      Get.snackbar('Error', 'Failed to logout: ${response.reasonPhrase}');
+
     }
+    Get.offAll(const LoginPage());
   }
 
   Future<void> checkTokenValidity() async {
     final String token = await getToken();
+
+
+
     const url = Constant.INTROSPECT_URL;
 
     final response = await http.post(
@@ -49,14 +57,10 @@ class UserController extends GetxController {
       final bool isValid = responseBody['result']['valid'];
 
       if (isValid) {
-        Get.to(RestaurantDashboardPage());
-      } else {
-        print("Valid token");
-        Get.snackbar('Error', 'Token is no longer valid. Please log in again.');
-        Get.to(const LoginPage());
+        Get.put(RestaurantController());
+        Get.put(OrderController());
+        Get.offAll(RestaurantDashboardPage());
       }
-    } else {
-      Get.snackbar('Error', 'Failed to check token validity: ${response.reasonPhrase}');
     }
   }
 
